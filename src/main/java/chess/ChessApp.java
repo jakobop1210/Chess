@@ -7,7 +7,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class Pieces extends Application {
+public class ChessApp extends Application {
 
     public static void main(String[] args) {
         Application.launch(args);
@@ -15,8 +15,8 @@ public class Pieces extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        primaryStage.setTitle("Example App");
-        primaryStage.setScene(new Scene(FXMLLoader.load(getClass().getResource("App.fxml"))));
+        primaryStage.setTitle("Chess");
+        primaryStage.setScene(new Scene(FXMLLoader.load(getClass().getResource("Chess.fxml"))));
         primaryStage.show();
     }
 
