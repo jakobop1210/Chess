@@ -35,11 +35,12 @@ public class ChessGame {
 
         if (legalMoves.contains(moveList)) {
             updateBoard(currentSquare, piece, move);
+            board.printBoard();
             if (checkForCheck(boardGame, findKingSquare())) {
                 check = true;
                 if (checkForMate(boardGame)) {
-                    System.out.println(winner + "vant med sjakkmatt!");
                     winner = turn;
+                    System.out.println(winner + " vant med sjakkmatt!");
                     gameOver = true;
                 }
             } else {
@@ -59,22 +60,22 @@ public class ChessGame {
 
     // Oppdaterer brettet
     public void updateBoard(int[] currentSquare, Piece piece, int[] move) {
+        // Setter brikken på det nye feltet
         boardGame[move[0]][move[1]].setPiece(piece.getPiece());
         boardGame[move[0]][move[1]].setColor(piece.getColor());
-        System.out.println(currentSquare[0]);
-        System.out.println(currentSquare[1]);
-        System.out.println(boardGame[currentSquare[0]][currentSquare[1]]);
+        // Fjerner brikken fra det gamle feltet
         boardGame[currentSquare[0]][currentSquare[1]].setPiece('0');
-        //boardGame[currentSquare[0]][currentSquare[1]].setColor('0');         
+        boardGame[currentSquare[0]][currentSquare[1]].setColor('0');    
+    
     }
 
     // Felles metode som sjekker brikketype og deretter finner lovelige trekk
     public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece piece) {
         List<List<Integer>> squares = new ArrayList<>();
      
-        if (check == true && piece.getPiece() != 'k') {
-            throw new IllegalArgumentException("Du står i sjakk!");
-        }
+     // if (check == true && piece.getPiece() != 'k') {
+     //     throw new IllegalArgumentException("Du står i sjakk!");
+     // }
         if (piece.getPiece() == 'p') {
             squares.addAll(pawnLegalMoves(currentSquare, piece));
         } else if (piece.getPiece() == 'h') {
@@ -254,7 +255,7 @@ public class ChessGame {
         } if (currentSquare[0] != 0 && currentSquare[1] != 0) {
             i = 1;
             while (true) {
-                if (currentSquare[0] - i < 0 || currentSquare[0] - i < 0) {
+                if (currentSquare[0] - i < 0 || currentSquare[1] - i < 0) {
                     break;
                 }
                 Piece squareInfront = boardGame[currentSquare[0]-i][currentSquare[1]-i]; 
@@ -351,7 +352,6 @@ public class ChessGame {
     public boolean checkForCheck(Piece[][] boardGame, int[] kingSquare) {
         List<List<List<Integer>>> allMoves = new ArrayList<>();
         List<Integer> kingSquareList = Arrays.asList(new Integer[]{kingSquare[0], kingSquare[1]});
-
         for (int i = 0; i < boardGame.length; i++) {
             for (int j = 0; j < boardGame[i].length; j++) {
                 if (boardGame[i][j].getPiece() != '0' && boardGame[i][j].getColor() == turn) {
@@ -360,7 +360,6 @@ public class ChessGame {
                     allMoves.add(pieceMoves);
                 }
             }
-            
         }
         for (List<List<Integer>> list : allMoves) {
             for (List<Integer> square : list) {
@@ -394,10 +393,32 @@ public class ChessGame {
         int[] move = {4,4};
         Piece whiteP = new Piece('p', 'w');
         newGame.movePiece(square, whiteP, move);
+
         int[] square1 = {1,4};
         int[] move1 = {3,4};
         Piece blackP = new Piece('p', 'b');
         newGame.movePiece(square1, blackP, move1);
 
+        int[] square2 = {7,1};
+        int[] move2 = {5,2};
+        Piece whiteB = new Piece('h', 'w');
+        newGame.movePiece(square2, whiteB, move2);
+
+        int[] square3 = {1,0};
+        int[] move3 = {2,0};
+        newGame.movePiece(square3, blackP, move3);
+
+        int[] square4 = {7,3};
+        int[] move4 = {5,5};
+        Piece whiteQ = new Piece('q', 'w');
+        newGame.movePiece(square4, whiteQ, move4);
+
+        int[] square5 = {2,0};
+        int[] move5 = {3,0};
+        newGame.movePiece(square5, blackP, move5);
+        
+        int[] square6 = {5,5};
+        int[] move6 = {1,5};
+        newGame.movePiece(square6, whiteQ, move6);
     }
 }
