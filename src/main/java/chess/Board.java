@@ -57,7 +57,7 @@ public class Board {
             for (Piece piece : pieces) {
                 System.out.print(piece.getPiece() + " ");
             }
-            System.out.println();
+            System.out.printf("%n");
         }
     }
     public static void main(String[] args) {

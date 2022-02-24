@@ -24,8 +24,17 @@ public class Piece {
         return color;
     }
 
+    public void setPiece(char piece) {
+        this.piece = piece;
+    }
+
+    public void setColor(char color) {
+        this.color = color;
+    }
+
     public static void main(String[] args) {
         Piece whitePawn = new Piece('p', 'w');
+        whitePawn.setPiece('r');
         System.out.println(whitePawn.getPiece());
     }
 }
