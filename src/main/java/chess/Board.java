@@ -62,6 +62,6 @@ public class Board {
     }
     public static void main(String[] args) {
         Board board1 = new Board();
-        //board1.printBoard();
+        board1.printBoard();
     }
 }
