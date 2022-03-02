@@ -1,33 +1,20 @@
 package chess;
 
+import java.util.ArrayList;
+import java.util.List;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+
 
 public class ChessController {
-    @FXML
-    private TextField firstNumber, secondNumber, operator;
+    private List<Piece> board; 
 
     @FXML
-    private Label result;
+    public void initialize() {
 
-    private Calculator calculator;
-
-    private void initCalculator(String operator) {
-        calculator = new Calculator(operator);
     }
 
-    @FXML
-    private void handleButtonClick() {
-        initCalculator(operator.getText());
-        try {
-            int result = calculator.calculate(Integer.parseInt(firstNumber.getText()),
-                    Integer.parseInt(secondNumber.getText()));
-            this.result.setText(firstNumber.getText() + " " + operator.getText() + " " + secondNumber.getText() + " = "
-                    + String.valueOf(result));
-        } catch (NumberFormatException e) {
-            result.setText("Et eller begge tallene er ugyldige");
-        }
+    private void boardList() {
+        board = new ArrayList<>();
+        
     }
-
 }
