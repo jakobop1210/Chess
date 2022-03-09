@@ -11,7 +11,7 @@ public class ChessGame {
     private char nextTurn = 'b';
     private char winner;
     private boolean gameOver;
-    private boolean check;
+    private boolean check = false;
     
     // Konstruktøren som lager et nytt board og en board klasse
     public ChessGame() {
@@ -38,16 +38,20 @@ public class ChessGame {
             throw new IllegalArgumentException("Det er ikke din tur!");
         } 
         List<List<Integer>> legalMoves = findLegalMoves(currentSquare, piece);
-        List<Integer> moveList = Arrays.asList(move[0], move[1]);
+        List<Integer> movetoList = Arrays.asList(move[0], move[1]);
+        if (check) {
+            legalMoves = ifCheck(piece, currentSquare, legalMoves);
+        }
 
-        if (legalMoves.contains(moveList)) {
-            Piece[] update = {piece, new Piece('0', '0')};
+        if (legalMoves.contains(movetoList)) {
+            Piece[] update = {new Piece('0', '0'), piece};
             updateBoard(update, currentSquare, move);
+            updateTurn();
             if (checkForCheck()) {
                 System.out.println("Du står i sjakk!");
                 check = true;
                 if (checkForMate()) {
-                    winner = turn;
+                    winner = nextTurn;
                     System.out.println(winner + " vant med sjakkmatt!");
                     gameOver = true;
                 }
@@ -57,7 +61,26 @@ public class ChessGame {
         } else {
             throw new IllegalArgumentException("Brikken kan ikke flytte dit!");
         }
-        updateTurn();
+    }
+
+    // Sjekker hvilke trekk som opphever sjakken
+    private List<List<Integer>> ifCheck(Piece piece, int[] currentSquare, List<List<Integer>> moves) {
+        Piece pieceCopy = new Piece(piece.getPiece(), piece.getColor());
+        List<List<Integer>> ifCheckMoves = new ArrayList<>();
+
+        for (List<Integer> square : moves) {
+            int[] moveTo = {square.get(0), square.get(1)};
+            Piece newSquarePiece = new Piece(board[moveTo[0]][moveTo[1]].getPiece(), board[moveTo[0]][moveTo[1]].getColor());
+            Piece[] firstUpdate = {new Piece('0','0'), pieceCopy};
+            Piece[] secondUpdate = {newSquarePiece, pieceCopy};
+
+            updateBoard(firstUpdate, currentSquare, moveTo);
+            if (checkForCheck() == false) {
+                ifCheckMoves.add(square);
+            }
+            updateBoard(secondUpdate, moveTo, currentSquare);
+        }
+        return ifCheckMoves;
     }
 
     // Oppdaterer turen
@@ -72,36 +95,34 @@ public class ChessGame {
     }
    
     // Oppdaterer brettet
-    private void updateBoard(Piece[] pieces, int[] currentSquare, int[] move) {
-        // Setter første brikke i pieces på move feltet
-        board[move[0]][move[1]].setPiece(pieces[0].getPiece());
-        board[move[0]][move[1]].setColor(pieces[0].getColor());
-        // Setter andre brukke i pieces på currentSquare feltet
-        board[currentSquare[0]][currentSquare[1]].setPiece(pieces[1].getPiece());
-        board[currentSquare[0]][currentSquare[1]].setColor(pieces[1].getColor());   
+    private void updateBoard(Piece[] pieces, int[] currentSquare, int[] move) {    
+        // Setter første brukke i pieces på currentSquare feltet
+        board[currentSquare[0]][currentSquare[1]].setPiece(pieces[0].getPiece());
+        board[currentSquare[0]][currentSquare[1]].setColor(pieces[0].getColor());   
+
+        // Setter andre brikke i pieces på move feltet
+        board[move[0]][move[1]].setPiece(pieces[1].getPiece());
+        board[move[0]][move[1]].setColor(pieces[1].getColor());
     }
 
     // Felles metode som sjekker brikketype og deretter finner lovelige trekk
-    private List<List<Integer>> findLegalMoves(int[] currentSquare, Piece piece) {
-        List<List<Integer>> squares = new ArrayList<>();
+    public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece piece) {
+        List<List<Integer>> allMoves = new ArrayList<>();
      
-     // if (check == true && piece.getPiece() != 'k') {
-     //     throw new IllegalArgumentException("Du står i sjakk!");
-     // }
-        if (piece.getPiece() == 'p') {
-            squares.addAll(pawnLegalMoves(currentSquare, piece));
+        if (piece.getPiece() == 'p') {                                  // Sjekker brikketype og legger til lovlige trekk til allMoves
+            allMoves.addAll(pawnLegalMoves(currentSquare, piece));
         } else if (piece.getPiece() == 'h') {
-            squares.addAll(horseLegalMoves(currentSquare, piece));
+            allMoves.addAll(horseLegalMoves(currentSquare, piece));
         } else if (piece.getPiece() == 'r') {
-            squares.addAll(rookLegalMoves(currentSquare, piece));
+            allMoves.addAll(rookLegalMoves(currentSquare, piece));
         } else if (piece.getPiece() == 'b') {
-            squares.addAll(bishopLegalMoves(currentSquare, piece));
+            allMoves.addAll(bishopLegalMoves(currentSquare, piece));
         } else if (piece.getPiece() == 'q') {
-            squares.addAll(queenLegalMoves(currentSquare, piece));
+            allMoves.addAll(queenLegalMoves(currentSquare, piece));
         } else if (piece.getPiece() == 'k') {
-            squares.addAll(kingLegalMoves(currentSquare, piece));
-        } 
-        return squares;
+            allMoves.addAll(kingLegalMoves(currentSquare, piece));
+        }                                            
+        return allMoves;
     }
 
     // Pawn gyldige trekk
@@ -347,11 +368,11 @@ public class ChessGame {
     }
 
     // Finner kongen sin rute til fargen som skal flytte
-    private int[] findKingSquare() {
+    private int[] findKingSquare(char turn) {
         int[] kingSquare = new int[2];
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
-                if (board[i][j].getPiece() == 'k' && board[i][j].getColor() != turn) {
+                if (board[i][j].getPiece() == 'k' && board[i][j].getColor() == turn) {
                     kingSquare[0] = i;
                     kingSquare[1] = j;
                 }
@@ -362,23 +383,19 @@ public class ChessGame {
 
     // Sjekker for sjakk
     private boolean checkForCheck() {
-        List<List<List<Integer>>> allMoves = new ArrayList<>();
-        int[] kingSquare = findKingSquare();
+        int[] kingSquare = findKingSquare(turn);
         List<Integer> kingSquareList = Arrays.asList(new Integer[]{kingSquare[0], kingSquare[1]});
 
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
-                if (board[i][j].getPiece() != '0' && board[i][j].getColor() == turn) {
+                if (board[i][j].getPiece() != '0' && board[i][j].getColor() != turn) {
                     int [] currentSquare = new int[]{i,j};
                     List<List<Integer>> pieceMoves = findLegalMoves(currentSquare, board[i][j]);
-                    allMoves.add(pieceMoves);
-                }
-            }
-        }
-        for (List<List<Integer>> list : allMoves) {
-            for (List<Integer> square : list) {
-                if (square.equals(kingSquareList)) {
-                    return true;
+                    for (List<Integer> square : pieceMoves) {
+                        if (square.equals(kingSquareList)) {
+                            return true;
+                        }
+                    }
                 }
             }
         }
@@ -387,23 +404,23 @@ public class ChessGame {
 
     // Sjekker for sjakkmatt
     private boolean checkForMate() {
-        boolean mate = true;
-        int[] kingSquare = findKingSquare();
-        Piece king = new Piece('k', nextTurn);
-        List<List<Integer>> kingMoves = kingLegalMoves(kingSquare, king);
-    
-        for (List<Integer> newMove : kingMoves) {
-            int[] moveTo = {newMove.get(0), newMove.get(1)};
-            Piece[] firstUpdate = {king, new Piece('0', '0')};
-            Piece[] secondUpdate = {new Piece(board[moveTo[0]][moveTo[1]].getPiece(), board[moveTo[0]][moveTo[1]].getColor()), king};
-            // Oppdateter brettet for å sjekke om det fortsatt er sjakk når kongen flytter
-            updateBoard(firstUpdate, kingSquare, moveTo);
-        
-            if (checkForCheck() == false) {
-                mate = false;
+        boolean mate = false;
+        List<List<List<Integer>>> allMoves = new ArrayList<>();
+
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                if (board[i][j].getPiece() != '0' && board[i][j].getColor() == turn) {
+                    int[] currentSquare = {i,j};
+                    List<List<Integer>> pieceMoves = findLegalMoves(currentSquare, board[i][j]);
+                    pieceMoves = ifCheck(board[i][j], currentSquare, pieceMoves);
+                    if (!pieceMoves.isEmpty()) {
+                        allMoves.add(pieceMoves);
+                    }
+                }
             }
-            // Oppdaterer brettet tilbake til sånn det var
-            updateBoard(secondUpdate, kingSquare, moveTo);
+        }
+        if (allMoves.isEmpty()) {
+            mate = true;
         }
         return mate;
     }
@@ -425,22 +442,27 @@ public class ChessGame {
         Piece whiteB = new Piece('b', 'w');
         newGame.movePiece(square2, whiteB, move2);
 
-        int[] square3 = {1,0};
-        int[] move3 = {2,0};
-        newGame.movePiece(square3, blackP, move3);
+        int[] square3 = {0,6};
+        int[] move3 = {2,5};
+        Piece blackH = new Piece('h', 'b');
+        newGame.movePiece(square3, blackH, move3);
 
         int[] square4 = {7,3};
-        int[] move4 = {5,5};
+        int[] move4 = {3,7};
         Piece whiteQ = new Piece('q', 'w');
         newGame.movePiece(square4, whiteQ, move4);
 
-        int[] square5 = {2,0};
-        int[] move5 = {3,0};
+        int[] square5 = {1,0};
+        int[] move5 = {2,0};
         newGame.movePiece(square5, blackP, move5);
         
-        int[] square6 = {5,5};
+        int[] square6 = {3,7};
         int[] move6 = {1,5};
         newGame.movePiece(square6, whiteQ, move6);
+
+      // int[] square7 = {2,7};
+      // int[] move7 = {0,6};
+      // newGame.movePiece(square7, blackH, move7);
 
         newGame.printboard();
     }
