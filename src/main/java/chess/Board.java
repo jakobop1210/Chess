@@ -53,18 +53,6 @@ public class Board {
         return board;
     }
 
- // public Piece[][] copyBoard(Piece[][] board) {
- //     Piece[][] copyBoard = new Piece[8][8];
-
- //     for (int i = 0; i < board.length; i++) {
- //         for (int j = 0; j < board[i].length; j++) {
- //             Piece row = new Piece(board[i][j].getPiece(), board[i][j].getColor());
- //             copyBoard[i][j] = row;
- //         }
- //     }
- //     return copyBoard;
- // }
-
     public Piece[][] getBoard() {
         return board;
     }
