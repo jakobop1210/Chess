@@ -24,6 +24,22 @@ public class ChessGame {
         return board;
     }
 
+    public char getWinner() {
+        return winner;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public boolean isCheck() {
+        return check;
+    }
+
+    public char getTurn() {
+        return turn;
+    }
+
     // Printer brettet i konsollen
     public void printboard() {
         boardClass.printBoard();
@@ -31,11 +47,8 @@ public class ChessGame {
 
     // FLytter brikke, oppdaterer brett, tur, sjekker for sjakk og sjakkmatt
     public boolean movePiece(int[] currentSquare, Piece piece, int[] move) {
-        if (gameOver == true) {
-            System.out.println("Spillet er over!");
-        }
         if (piece.getColor() != turn) {
-            throw new IllegalArgumentException("Det er ikke din tur!");
+            return false;
         } 
         List<List<Integer>> legalMoves = findLegalMoves(currentSquare, piece);
         List<Integer> movetoList = Arrays.asList(move[0], move[1]);

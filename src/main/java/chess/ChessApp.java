@@ -19,5 +19,4 @@ public class ChessApp extends Application {
         primaryStage.setScene(new Scene(FXMLLoader.load(getClass().getResource("Chess.fxml"))));
         primaryStage.show();
     }
-
 }
