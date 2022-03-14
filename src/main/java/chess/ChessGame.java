@@ -51,10 +51,8 @@ public class ChessGame {
             return false;
         } 
         List<List<Integer>> legalMoves = findLegalMoves(currentSquare, piece);
+        legalMoves = ifCheck(piece, currentSquare, legalMoves);
         List<Integer> movetoList = Arrays.asList(move[0], move[1]);
-        if (check) {
-            legalMoves = ifCheck(piece, currentSquare, legalMoves);
-        }
 
         if (legalMoves.contains(movetoList)) {
             Piece[] update = {new Piece('0', '0'), piece};
