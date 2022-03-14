@@ -15,8 +15,8 @@ public class ChessController {
     private boolean gameOver;
     private Piece[][] board; 
     private ImageView[][] imageViewArr = new ImageView[8][8];
-    private Button lastButtonClicked;
-    private int[] lastButtonClickedSquare;
+    private Pane[][] paneArr = new Pane[8][8];
+    private int[] lastClickedSquare;
     private int gameCount;
 
 
@@ -35,14 +35,14 @@ public class ChessController {
         board = game.getBoard();
         gameOver = false;
         resultPane.visibleProperty().set(false);
-        // Setter alle brikkene til start posisjon
+ 
         if (gameCount > 0) {
+            setPaneRightColor();
             for (int i = 0; i < board.length; i++) {
                 for (int j = 0; j < board[i].length; j++) {
                     setImageUrl(board[i][j], i, j);
                 }
             }
-        // Hvis det er første runde så må knapper og bilder lages
         } else {
             createImageViewsAndButtons();
         }
@@ -53,11 +53,21 @@ public class ChessController {
     private void createImageViewsAndButtons() {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
+                Pane pane = new Pane();
+                paneArr[i][j] = pane;
+                if (i%2 == 0 && j%2 == 1 || i%2 == 1 && j%2 == 0) {
+                    pane.setStyle("-fx-background-color:green");
+                } else {
+                    pane.setStyle("-fx-background-color:#FFFDE7");
+                }
+                squareGrid.add(pane, j, i);
+
                 ImageView image = new ImageView();
                 imageViewArr[i][j] = image;
                 setImageUrl(board[i][j], i, j);
-                Button button = createSquareButton(i, j);
                 squareGrid.add(image, j, i);
+
+                Button button = createSquareButton(i, j);
                 squareGrid.add(button, j, i);
             }
         }
@@ -74,16 +84,24 @@ public class ChessController {
         return button;
     }
 
+    // Setter Pane ruten til original farge
+    private void setPaneRightColor() {
+        if (lastClickedSquare[0]%2 == 0 && lastClickedSquare[1]%2 == 1 || lastClickedSquare[0]%2 == 1 && lastClickedSquare[1]%2 == 0) {
+            paneArr[lastClickedSquare[0]][lastClickedSquare[1]].setStyle("-fx-background-color:green");
+        } else {
+            paneArr[lastClickedSquare[0]][lastClickedSquare[1]].setStyle("-fx-background-color:#FFFDE7");
+        }
+    }
+
     // Oppdaterer hvilken rute som er trykket på og kaller doMove()
     public void clickedButton(Button button, int i, int j) {
         if (gameOver == false) {
-            button.setOpacity(0.5);
-            if (lastButtonClicked != null) {
-                lastButtonClicked.setOpacity(0);
-                doMove(lastButtonClickedSquare, i, j);
+            paneArr[i][j].setStyle("-fx-background-color:#FDFD66");
+            if (lastClickedSquare != null) {
+                setPaneRightColor();
+                doMove(lastClickedSquare, i, j);
             } 
-            lastButtonClicked = button;
-            lastButtonClickedSquare = new int[]{i,j};
+            lastClickedSquare = new int[]{i,j};
         }
     }
 
