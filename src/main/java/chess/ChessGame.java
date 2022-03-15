@@ -47,7 +47,7 @@ public class ChessGame {
         boardClass.printBoard();
     }
 
-    // FLytter brikke, oppdaterer brett, tur, sjekker for sjakk og sjakkmatt
+    // FLytter brikke, oppdaterer brett, oppdaterer tur, sjekker for sjakk og sjakkmatt
     public boolean movePiece(int[] currentSquare, Piece piece, int[] move) {
         if (piece.getColor() != turn) {
             return false;
@@ -440,7 +440,7 @@ public class ChessGame {
                 }
             }
         }
-        // Rokade
+        // Rokade (ikke ferdig!)
         if (piece.getColor() == 'w' && wKingHasMoved == false || piece.getColor() == 'b' && bKingHasMoved == false) {
 
         }
@@ -448,6 +448,7 @@ public class ChessGame {
     }
     
     public static void main(String[] args) {
+        // Sjekker skolematten manuelt
         ChessGame newGame = new ChessGame();
         int[] square = {6,4};
         int[] move = {4,4};
@@ -465,7 +466,7 @@ public class ChessGame {
         newGame.movePiece(square2, whiteB, move2);
 
         int[] square3 = {0,6};
-        int[] move3 = {2,7};
+        int[] move3 = {2,5};
         Piece blackH = new Piece('h', 'b');
         newGame.movePiece(square3, blackH, move3);
 
@@ -482,9 +483,9 @@ public class ChessGame {
         int[] move6 = {1,5};
         newGame.movePiece(square6, whiteQ, move6);
 
-        int[] square7 = {2,7};
-        int[] move7 = {0,6};
-        newGame.movePiece(square7, blackH, move7);
+      //int[] square7 = {2,7};
+      //int[] move7 = {0,6};
+      //newGame.movePiece(square7, blackH, move7);
 
         newGame.printboard();
     }
