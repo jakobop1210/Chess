@@ -66,10 +66,20 @@
                   <Font name="Apple Symbols" size="18.0" />
                </font>
             </TextField>
+            <Button layoutX="338.0" mnemonicParsing="false" onAction="#exitResult" prefHeight="32.0" prefWidth="42.0" style="-fx-background-color: white;" text="x">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Button>
          </children>
          <effect>
             <DropShadow />
          </effect>
       </Pane>
+      <Button fx:id="extraStartButton" layoutX="534.0" layoutY="710.0" mnemonicParsing="false" onAction="#initialize" prefHeight="43.0" prefWidth="147.0" style="-fx-background-color: green;" text="Start a new game" textFill="WHITE" visible="false">
+         <font>
+            <Font name="System Bold" size="15.0" />
+         </font>
+      </Button>
    </children>
 </Pane>

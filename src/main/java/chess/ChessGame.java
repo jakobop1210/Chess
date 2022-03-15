@@ -12,6 +12,8 @@ public class ChessGame {
     private char winner;
     private boolean gameOver;
     private boolean check = false;
+    private boolean wKingHasMoved = false;
+    private boolean bKingHasMoved = false;
     
     // Konstruktøren som lager et nytt board og en board klasse
     public ChessGame() {
@@ -55,6 +57,10 @@ public class ChessGame {
         List<Integer> movetoList = Arrays.asList(move[0], move[1]);
 
         if (legalMoves.contains(movetoList)) {
+            if (piece.getPiece() == 'p') {
+                if (move[0] == 0 || move[0] == 7) piece.setPiece('q');
+            }
+
             Piece[] update = {new Piece('0', '0'), piece};
             updateBoard(update, currentSquare, move);
             updateTurn();
@@ -433,6 +439,10 @@ public class ChessGame {
                     legalMoves.add(Arrays.asList(currentSquare[0]+square[0], currentSquare[1]+square[1]));
                 }
             }
+        }
+        // Rokade
+        if (piece.getColor() == 'w' && wKingHasMoved == false || piece.getColor() == 'b' && bKingHasMoved == false) {
+
         }
         return legalMoves;     
     }

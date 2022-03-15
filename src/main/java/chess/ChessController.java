@@ -28,6 +28,9 @@ public class ChessController {
 
     @FXML
     Pane resultPane;
+
+    @FXML
+    Button extraStartButton;
     
     @FXML
     public void initialize() {
@@ -35,7 +38,8 @@ public class ChessController {
         board = game.getBoard();
         gameOver = false;
         resultPane.visibleProperty().set(false);
- 
+        extraStartButton.visibleProperty().set(false);
+
         if (gameCount > 0) {
             setPaneRightColor();
             for (int i = 0; i < board.length; i++) {
@@ -166,5 +170,10 @@ public class ChessController {
         winningMethod.setText("by resignation");
         winnerTextField.setText("White won!");
         System.out.println("Vinnereren er hvit!");
+    }
+
+    public void exitResult() {
+        resultPane.visibleProperty().set(false);
+        extraStartButton.visibleProperty().set(true);
     }
 }
