@@ -50,16 +50,18 @@ public class ChessGame {
         if (piece.getColor() != turn) {
             return false;
         } 
-        List<List<Integer>> legalMoves = findLegalMoves(currentSquare, piece);
+        List<List<Integer>> legalMoves = piece.findLegalMoves(currentSquare, board);
         legalMoves = ifCheck(piece, currentSquare, legalMoves);
         List<Integer> movetoList = Arrays.asList(move[0], move[1]);
 
         if (legalMoves.contains(movetoList)) {
-            if (piece.getPiece() == 'p') {
-                if (move[0] == 0 || move[0] == 7) piece.setPiece('q');
+            if (piece.getName() == "chess.Pawn") {
+                if (move[0] == 0 || move[0] == 7) {
+                    board[currentSquare[0]][currentSquare[1]] = new Queen(piece.getColor());
+                }
             }
 
-            Piece[] update = {new Piece('0', '0'), piece};
+            Piece[] update = {null, piece};
             updateBoard(update, currentSquare, move);
             updateTurn();
             if (checkForCheck()) {
@@ -93,12 +95,9 @@ public class ChessGame {
     // Oppdaterer brettet
     private void updateBoard(Piece[] pieces, int[] currentSquare, int[] move) {    
         // Setter første brukke i pieces på currentSquare feltet
-        board[currentSquare[0]][currentSquare[1]].setPiece(pieces[0].getPiece());
-        board[currentSquare[0]][currentSquare[1]].setColor(pieces[0].getColor());   
-
+        board[currentSquare[0]][currentSquare[1]] = null;
         // Setter andre brikke i pieces på move feltet
-        board[move[0]][move[1]].setPiece(pieces[1].getPiece());
-        board[move[0]][move[1]].setColor(pieces[1].getColor());
+        board[move[0]][move[1]] = pieces[1];
     }
 
     // Finner kongen sin rute til fargen turn
@@ -106,7 +105,7 @@ public class ChessGame {
         int[] kingSquare = new int[2];
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
-                if (board[i][j].getPiece() == 'k' && board[i][j].getColor() == turn) {
+                if (board[i][j].getName() == "chess.King" && board[i][j].getColor() == turn) {
                     kingSquare[0] = i;
                     kingSquare[1] = j;
                 }
@@ -117,14 +116,13 @@ public class ChessGame {
 
     // Sjekker hvilke trekk som opphever sjakken i listen moves
     private List<List<Integer>> ifCheck(Piece piece, int[] currentSquare, List<List<Integer>> moves) {
-        Piece pieceCopy = new Piece(piece.getPiece(), piece.getColor());
+        //Piece pieceCopy = new Piece(piece.getPiece(), piece.getColor());
         List<List<Integer>> ifCheckMoves = new ArrayList<>();
 
         for (List<Integer> square : moves) {
             int[] moveTo = {square.get(0), square.get(1)};
-            Piece newSquarePiece = new Piece(board[moveTo[0]][moveTo[1]].getPiece(), board[moveTo[0]][moveTo[1]].getColor());
-            Piece[] movePiece = {new Piece('0','0'), pieceCopy};
-            Piece[] movePieceBack = {newSquarePiece, pieceCopy};
+            Piece[] movePiece = {null, piece};
+            Piece[] movePieceBack = {board[moveTo[0]][moveTo[1]], piece};
 
             updateBoard(movePiece, currentSquare, moveTo);
             if (checkForCheck() == false) {
@@ -142,9 +140,9 @@ public class ChessGame {
 
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
-                if (board[i][j].getPiece() != '0' && board[i][j].getColor() != turn) {
+                if (board[i][j].getColor() != turn) {
                     int [] currentSquare = new int[]{i,j};
-                    List<List<Integer>> pieceMoves = findLegalMoves(currentSquare, board[i][j]);
+                    List<List<Integer>> pieceMoves = board[i][j].findLegalMoves(currentSquare, board);
                     for (List<Integer> square : pieceMoves) {
                         if (square.equals(kingSquareList)) {
                             return true;
@@ -163,9 +161,9 @@ public class ChessGame {
 
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
-                if (board[i][j].getPiece() != '0' && board[i][j].getColor() == turn) {
+                if (board[i][j].getColor() == turn) {
                     int[] currentSquare = {i,j};
-                    List<List<Integer>> pieceMoves = findLegalMoves(currentSquare, board[i][j]);
+                    List<List<Integer>> pieceMoves = board[i][j].findLegalMoves(currentSquare, board);
                     pieceMoves = ifCheck(board[i][j], currentSquare, pieceMoves);
                     if (!pieceMoves.isEmpty()) {
                         allMoves.add(pieceMoves);
@@ -180,294 +178,294 @@ public class ChessGame {
     }
 
     // Felles metode som sjekker brikketype og deretter finner lovelige trekk
-    public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece piece) {
-        List<List<Integer>> legalMoves = new ArrayList<>();
-     
-        if (piece.getPiece() == 'p') {                                  // Sjekker brikketype og legger til lovlige trekk til allMoves
-            legalMoves.addAll(pawnLegalMoves(currentSquare, piece));
-        } else if (piece.getPiece() == 'h') {
-            legalMoves.addAll(horseLegalMoves(currentSquare, piece));
-        } else if (piece.getPiece() == 'r') {
-            legalMoves.addAll(rookLegalMoves(currentSquare, piece));
-        } else if (piece.getPiece() == 'b') {
-            legalMoves.addAll(bishopLegalMoves(currentSquare, piece));
-        } else if (piece.getPiece() == 'q') {
-            legalMoves.addAll(queenLegalMoves(currentSquare, piece));
-        } else if (piece.getPiece() == 'k') {
-            legalMoves.addAll(kingLegalMoves(currentSquare, piece));
-        }                                            
-        return legalMoves;
-    }
+//public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece piece) {
+//    List<List<Integer>> legalMoves = new ArrayList<>();
+// 
+//    if (piece.getPiece() == 'p') {                                  // Sjekker brikketype og legger til lovlige trekk til allMoves
+//        legalMoves.addAll(pawnLegalMoves(currentSquare, piece));
+//    } else if (piece.getPiece() == 'h') {
+//        legalMoves.addAll(horseLegalMoves(currentSquare, piece));
+//    } else if (piece.getPiece() == 'r') {
+//        legalMoves.addAll(rookLegalMoves(currentSquare, piece));
+//    } else if (piece.getPiece() == 'b') {
+//        legalMoves.addAll(bishopLegalMoves(currentSquare, piece));
+//    } else if (piece.getPiece() == 'q') {
+//        legalMoves.addAll(queenLegalMoves(currentSquare, piece));
+//    } else if (piece.getPiece() == 'k') {
+//        legalMoves.addAll(kingLegalMoves(currentSquare, piece));
+//    }                                            
+//    return legalMoves;
+//}
 
     // Pawn gyldige trekk
-    private List<List<Integer>> pawnLegalMoves(int[] currentSquare, Piece piece) {
-        List<List<Integer>> legalMoves = new ArrayList<>();
-        
-        if (piece.getColor() == 'w') {
-            if (currentSquare[0] != 0) {                  
-                Piece pieceInfront = board[currentSquare[0]-1][currentSquare[1]];                             
-                if (currentSquare[0] != 1) {
-                    Piece piece2Infront = board[currentSquare[0]-2][currentSquare[1]];
-                    if (pieceInfront.getPiece() == '0' && piece2Infront.getPiece() == '0' && currentSquare[0] == 6) legalMoves.add(Arrays.asList(4, currentSquare[1]));  
-                }
-                if (pieceInfront.getPiece() == '0') legalMoves.add(Arrays.asList(currentSquare[0]-1, currentSquare[1]));
-                if (currentSquare[1] != 7) {
-                    Piece rightDiagonal = board[currentSquare[0]-1][currentSquare[1]+1]; 
-                    if (rightDiagonal.getColor() == 'b') legalMoves.add(Arrays.asList(currentSquare[0]-1, currentSquare[1]+1)); 
-                } 
-                if (currentSquare[1] != 0) {
-                    Piece leftDiagonal = board[currentSquare[0]-1][currentSquare[1]-1]; 
-                    if (leftDiagonal.getColor() == 'b') legalMoves.add(Arrays.asList(currentSquare[0]-1, currentSquare[1]-1)); 
-                }
-            }                  
-        } else { 
-            if (currentSquare[0] != 7) {
-                Piece pieceInfront = board[currentSquare[0]+1][currentSquare[1]];                             
-                if (currentSquare[0] != 6) {
-                    Piece piece2Infront = board[currentSquare[0]+2][currentSquare[1]];
-                    if (pieceInfront.getPiece() == '0' && piece2Infront.getPiece() == '0' && currentSquare[0] == 1) legalMoves.add(Arrays.asList(3, currentSquare[1]));  
-                }                          
-                if (pieceInfront.getPiece() == '0') legalMoves.add(Arrays.asList(currentSquare[0]+1, currentSquare[1]));
-                if (currentSquare[1] != 7) {
-                    Piece rightDiagonal = board[currentSquare[0]+1][currentSquare[1]+1]; 
-                    if (rightDiagonal.getColor() == 'w') legalMoves.add(Arrays.asList(currentSquare[0]+1, currentSquare[1]+1)); 
-                }
-                if (currentSquare[1] != 0) {
-                    Piece leftDiagonal = board[currentSquare[0]+1][currentSquare[1]-1]; 
-                    if (leftDiagonal.getColor() == 'w') legalMoves.add(Arrays.asList(currentSquare[0]+1, currentSquare[1]-1)); 
-                }
-            }            
-        }
-        return legalMoves;               
-    }
+//private List<List<Integer>> pawnLegalMoves(int[] currentSquare, Piece piece) {
+//    List<List<Integer>> legalMoves = new ArrayList<>();
+//    
+//    if (piece.getColor() == 'w') {
+//        if (currentSquare[0] != 0) {                  
+//            Piece pieceInfront = board[currentSquare[0]-1][currentSquare[1]];                             
+//            if (currentSquare[0] != 1) {
+//                Piece piece2Infront = board[currentSquare[0]-2][currentSquare[1]];
+//                if (pieceInfront.getPiece() == '0' && piece2Infront.getPiece() == '0' && currentSquare[0] == 6) legalMoves.add(Arrays.asList(4, currentSquare[1]));  
+//            }
+//            if (pieceInfront.getPiece() == '0') legalMoves.add(Arrays.asList(currentSquare[0]-1, currentSquare[1]));
+//            if (currentSquare[1] != 7) {
+//                Piece rightDiagonal = board[currentSquare[0]-1][currentSquare[1]+1]; 
+//                if (rightDiagonal.getColor() == 'b') legalMoves.add(Arrays.asList(currentSquare[0]-1, currentSquare[1]+1)); 
+//            } 
+//            if (currentSquare[1] != 0) {
+//                Piece leftDiagonal = board[currentSquare[0]-1][currentSquare[1]-1]; 
+//                if (leftDiagonal.getColor() == 'b') legalMoves.add(Arrays.asList(currentSquare[0]-1, currentSquare[1]-1)); 
+//            }
+//        }                  
+//    } else { 
+//        if (currentSquare[0] != 7) {
+//            Piece pieceInfront = board[currentSquare[0]+1][currentSquare[1]];                             
+//            if (currentSquare[0] != 6) {
+//                Piece piece2Infront = board[currentSquare[0]+2][currentSquare[1]];
+//                if (pieceInfront.getPiece() == '0' && piece2Infront.getPiece() == '0' && currentSquare[0] == 1) legalMoves.add(Arrays.asList(3, currentSquare[1]));  
+//            }                          
+//            if (pieceInfront.getPiece() == '0') legalMoves.add(Arrays.asList(currentSquare[0]+1, currentSquare[1]));
+//            if (currentSquare[1] != 7) {
+//                Piece rightDiagonal = board[currentSquare[0]+1][currentSquare[1]+1]; 
+//                if (rightDiagonal.getColor() == 'w') legalMoves.add(Arrays.asList(currentSquare[0]+1, currentSquare[1]+1)); 
+//            }
+//            if (currentSquare[1] != 0) {
+//                Piece leftDiagonal = board[currentSquare[0]+1][currentSquare[1]-1]; 
+//                if (leftDiagonal.getColor() == 'w') legalMoves.add(Arrays.asList(currentSquare[0]+1, currentSquare[1]-1)); 
+//            }
+//        }            
+//    }
+//    return legalMoves;               
+//}
     
     // Horse gyldige trekk
-    private List<List<Integer>> horseLegalMoves(int[] currentSquare, Piece piece) {
-        List<List<Integer>> legalMoves = new ArrayList<>();
-        int hMoves[][] = {{2,1}, {2,-1}, {1,2}, {1,-2}, {-2,1}, {-2,-1}, {-1,2}, {-1,-2}};
+ //private List<List<Integer>> horseLegalMoves(int[] currentSquare, Piece piece) {
+ //    List<List<Integer>> legalMoves = new ArrayList<>();
+ //    int hMoves[][] = {{2,1}, {2,-1}, {1,2}, {1,-2}, {-2,1}, {-2,-1}, {-1,2}, {-1,-2}};
 
-        for (int[] square : hMoves) {
-            if (currentSquare[0]+square[0] >= 0 && currentSquare[0]+square[0] < 8 && currentSquare[1]+square[1] >= 0 && currentSquare[1]+square[1] < 8) {
-                Piece newSquare = board[currentSquare[0]+square[0]][currentSquare[1]+square[1]]; 
-                if (piece.getColor() != newSquare.getColor()) {
-                    legalMoves.add(Arrays.asList(currentSquare[0]+square[0], currentSquare[1]+square[1]));
-                }
-            }
-        }
-        return legalMoves;     
-    }
+ //    for (int[] square : hMoves) {
+ //        if (currentSquare[0]+square[0] >= 0 && currentSquare[0]+square[0] < 8 && currentSquare[1]+square[1] >= 0 && currentSquare[1]+square[1] < 8) {
+ //            Piece newSquare = board[currentSquare[0]+square[0]][currentSquare[1]+square[1]]; 
+ //            if (piece.getColor() != newSquare.getColor()) {
+ //                legalMoves.add(Arrays.asList(currentSquare[0]+square[0], currentSquare[1]+square[1]));
+ //            }
+ //        }
+ //    }
+ //    return legalMoves;     
+ //}
 
     // Rook gyldige trekk
-    private List<List<Integer>> rookLegalMoves(int[] currentSquare, Piece piece) {
-        List<List<Integer>> legalMoves = new ArrayList<>();
-        int i = 1;
-        // Sjekker nedover 
-        if (currentSquare[0] != 7) {
-            i = 1;
-            while (true) {
-                if (currentSquare[0] + i > 7) {
-                    break;
-                }
-                Piece squareInfront = board[currentSquare[0]+i][currentSquare[1]]; 
-                if (squareInfront.getPiece() == '0') {
-                    legalMoves.add(Arrays.asList(currentSquare[0]+i, currentSquare[1]));
-                    i++;
-                } else if (squareInfront.getColor() != piece.getColor()) {
-                    legalMoves.add(Arrays.asList(currentSquare[0]+i, currentSquare[1]));
-                    break;
-                } else {
-                    break;
-                }
-            }
-        // Sjekker oppover
-        } if (currentSquare[0] != 0) {
-            i = 1;
-            while (true) {
-                if (currentSquare[0] - i < 0) {
-                    break;
-                }
-                Piece squareInfront = board[currentSquare[0]-i][currentSquare[1]]; 
-                if (squareInfront.getPiece() == '0') {
-                    legalMoves.add(Arrays.asList(currentSquare[0]-i, currentSquare[1]));
-                    i++;
-                } else if (squareInfront.getColor() != piece.getColor()) {
-                    legalMoves.add(Arrays.asList(currentSquare[0]-i, currentSquare[1]));
-                    break;
-                } else {
-                    break;
-                }
-            }
-        // Sjekker til høyre
-        } if (currentSquare[1] != 7) {
-            i = 1;
-            while (true) {
-                if (currentSquare[1] + i > 7) {
-                    break;
-                }
-                Piece squareInfront = board[currentSquare[0]][currentSquare[1]+i]; 
-                if (squareInfront.getPiece() == '0') {
-                    legalMoves.add(Arrays.asList(currentSquare[0], currentSquare[1]+i));
-                    i++;
-                } else if (squareInfront.getColor() != piece.getColor()) {
-                    legalMoves.add(Arrays.asList(currentSquare[0], currentSquare[1]+i));
-                    break;
-                } else {
-                    break;
-                }
-            }
-        // Sjekker til venstre
-        } if (currentSquare[1] != 0) {
-            i = 1;
-            while (true) {
-                if (currentSquare[1] - i < 0) {
-                    break;
-                }
-                Piece squareInfront = board[currentSquare[0]][currentSquare[1]-i]; 
-                if (squareInfront.getPiece() == '0') {
-                    legalMoves.add(Arrays.asList(currentSquare[0], currentSquare[1]-i));
-                    i++;
-                } else if (squareInfront.getColor() != piece.getColor()) {
-                    legalMoves.add(Arrays.asList(currentSquare[0], currentSquare[1]-i));
-                    break;
-                } else {
-                    break;
-                }
-            }
-        } 
-        return legalMoves;
-    }
-
-    // Bishop gyldige trekk
-    private List<List<Integer>> bishopLegalMoves(int[] currentSquare, Piece piece) {
-        List<List<Integer>> legalMoves = new ArrayList<>();
-        int i = 1;
-        // Sjekker skrått høyre nedover 
-        if (currentSquare[0] != 7 && currentSquare[1] != 7) {
-            i = 1;
-            while (true) {
-                if (currentSquare[0] + i > 7 || currentSquare[1] + i > 7) {
-                    break;
-                }
-                Piece squareInfront = board[currentSquare[0]+i][currentSquare[1]+i]; 
-                if (squareInfront.getPiece() == '0') {
-                    legalMoves.add(Arrays.asList(currentSquare[0]+i, currentSquare[1]+i));
-                    i++;
-                } else if (squareInfront.getColor() != piece.getColor()) {
-                    legalMoves.add(Arrays.asList(currentSquare[0]+i, currentSquare[1]+i));
-                    break;
-                } else {
-                    break;
-                }
-            }
-        // Sjekker skrått venstre oppover
-        } if (currentSquare[0] != 0 && currentSquare[1] != 0) {
-            i = 1;
-            while (true) {
-                if (currentSquare[0] - i < 0 || currentSquare[1] - i < 0) {
-                    break;
-                }
-                Piece squareInfront = board[currentSquare[0]-i][currentSquare[1]-i]; 
-                if (squareInfront.getPiece() == '0') {
-                    legalMoves.add(Arrays.asList(currentSquare[0]-i, currentSquare[1]-i));
-                    i++;
-                } else if (squareInfront.getColor() != piece.getColor()) {
-                    legalMoves.add(Arrays.asList(currentSquare[0]-i, currentSquare[1]-i));
-                    break;
-                } else {
-                    break;
-                }
-            }
-        // Sjekker skrått høyre oppover
-        } if (currentSquare[0] != 0 && currentSquare[1] != 7) {
-            i = 1;
-            while (true) {
-                if (currentSquare[0] - i < 0 || currentSquare[1] + i > 7) {
-                    break;
-                }
-                Piece squareInfront = board[currentSquare[0]-i][currentSquare[1]+i]; 
-                if (squareInfront.getPiece() == '0') {
-                    legalMoves.add(Arrays.asList(currentSquare[0]-i, currentSquare[1]+i));
-                    i++;
-                } else if (squareInfront.getColor() != piece.getColor()) {
-                    legalMoves.add(Arrays.asList(currentSquare[0]-i, currentSquare[1]+i));
-                    break;
-                } else {
-                    break;
-                }
-            }
-        // Sjekker skrått venstre nedover
-        } if (currentSquare[0] != 7 && currentSquare[1] != 0) {
-            i = 1;
-            while (true) {
-                if (currentSquare[0] + i > 7 || currentSquare[1] - i < 0) {
-                    break;
-                }
-                Piece squareInfront = board[currentSquare[0]+i][currentSquare[1]-i]; 
-                if (squareInfront.getPiece() == '0') {
-                    legalMoves.add(Arrays.asList(currentSquare[0]+i, currentSquare[1]-i));
-                    i++;
-                } else if (squareInfront.getColor() != piece.getColor()) {
-                    legalMoves.add(Arrays.asList(currentSquare[0]+i, currentSquare[1]-i));
-                    break;
-                } else {
-                    break;
-                }
-            }
-        } 
-
-        return legalMoves;
-    }
-
-    // Queen gyldige trekk
-    private List<List<Integer>> queenLegalMoves(int[] currentSquare, Piece piece) {
-        List<List<Integer>> legalMoves = new ArrayList<>();
-        legalMoves.addAll(rookLegalMoves(currentSquare, piece));
-        legalMoves.addAll(bishopLegalMoves(currentSquare, piece));
-        return legalMoves;
-    }
+//private List<List<Integer>> rookLegalMoves(int[] currentSquare, Piece piece) {
+//    List<List<Integer>> legalMoves = new ArrayList<>();
+//    int i = 1;
+//    // Sjekker nedover 
+//    if (currentSquare[0] != 7) {
+//        i = 1;
+//        while (true) {
+//            if (currentSquare[0] + i > 7) {
+//                break;
+//            }
+//            Piece squareInfront = board[currentSquare[0]+i][currentSquare[1]]; 
+//            if (squareInfront.getPiece() == '0') {
+//                legalMoves.add(Arrays.asList(currentSquare[0]+i, currentSquare[1]));
+//                i++;
+//            } else if (squareInfront.getColor() != piece.getColor()) {
+//                legalMoves.add(Arrays.asList(currentSquare[0]+i, currentSquare[1]));
+//                break;
+//            } else {
+//                break;
+//            }
+//        }
+//    // Sjekker oppover
+//    } if (currentSquare[0] != 0) {
+//        i = 1;
+//        while (true) {
+//            if (currentSquare[0] - i < 0) {
+//                break;
+//            }
+//            Piece squareInfront = board[currentSquare[0]-i][currentSquare[1]]; 
+//            if (squareInfront.getPiece() == '0') {
+//                legalMoves.add(Arrays.asList(currentSquare[0]-i, currentSquare[1]));
+//                i++;
+//            } else if (squareInfront.getColor() != piece.getColor()) {
+//                legalMoves.add(Arrays.asList(currentSquare[0]-i, currentSquare[1]));
+//                break;
+//            } else {
+//                break;
+//            }
+//        }
+//    // Sjekker til høyre
+//    } if (currentSquare[1] != 7) {
+//        i = 1;
+//        while (true) {
+//            if (currentSquare[1] + i > 7) {
+//                break;
+//            }
+//            Piece squareInfront = board[currentSquare[0]][currentSquare[1]+i]; 
+//            if (squareInfront.getPiece() == '0') {
+//                legalMoves.add(Arrays.asList(currentSquare[0], currentSquare[1]+i));
+//                i++;
+//            } else if (squareInfront.getColor() != piece.getColor()) {
+//                legalMoves.add(Arrays.asList(currentSquare[0], currentSquare[1]+i));
+//                break;
+//            } else {
+//                break;
+//            }
+//        }
+//    // Sjekker til venstre
+//    } if (currentSquare[1] != 0) {
+//        i = 1;
+//        while (true) {
+//            if (currentSquare[1] - i < 0) {
+//                break;
+//            }
+//            Piece squareInfront = board[currentSquare[0]][currentSquare[1]-i]; 
+//            if (squareInfront.getPiece() == '0') {
+//                legalMoves.add(Arrays.asList(currentSquare[0], currentSquare[1]-i));
+//                i++;
+//            } else if (squareInfront.getColor() != piece.getColor()) {
+//                legalMoves.add(Arrays.asList(currentSquare[0], currentSquare[1]-i));
+//                break;
+//            } else {
+//                break;
+//            }
+//        }
+//    } 
+//    return legalMoves;
+//}
+//
+//// Bishop gyldige trekk
+//private List<List<Integer>> bishopLegalMoves(int[] currentSquare, Piece piece) {
+//    List<List<Integer>> legalMoves = new ArrayList<>();
+//    int i = 1;
+//    // Sjekker skrått høyre nedover 
+//    if (currentSquare[0] != 7 && currentSquare[1] != 7) {
+//        i = 1;
+//        while (true) {
+//            if (currentSquare[0] + i > 7 || currentSquare[1] + i > 7) {
+//                break;
+//            }
+//            Piece squareInfront = board[currentSquare[0]+i][currentSquare[1]+i]; 
+//            if (squareInfront.getPiece() == '0') {
+//                legalMoves.add(Arrays.asList(currentSquare[0]+i, currentSquare[1]+i));
+//                i++;
+//            } else if (squareInfront.getColor() != piece.getColor()) {
+//                legalMoves.add(Arrays.asList(currentSquare[0]+i, currentSquare[1]+i));
+//                break;
+//            } else {
+//                break;
+//            }
+//        }
+//    // Sjekker skrått venstre oppover
+//    } if (currentSquare[0] != 0 && currentSquare[1] != 0) {
+//        i = 1;
+//        while (true) {
+//            if (currentSquare[0] - i < 0 || currentSquare[1] - i < 0) {
+//                break;
+//            }
+//            Piece squareInfront = board[currentSquare[0]-i][currentSquare[1]-i]; 
+//            if (squareInfront.getPiece() == '0') {
+//                legalMoves.add(Arrays.asList(currentSquare[0]-i, currentSquare[1]-i));
+//                i++;
+//            } else if (squareInfront.getColor() != piece.getColor()) {
+//                legalMoves.add(Arrays.asList(currentSquare[0]-i, currentSquare[1]-i));
+//                break;
+//            } else {
+//                break;
+//            }
+//        }
+//    // Sjekker skrått høyre oppover
+//    } if (currentSquare[0] != 0 && currentSquare[1] != 7) {
+//        i = 1;
+//        while (true) {
+//            if (currentSquare[0] - i < 0 || currentSquare[1] + i > 7) {
+//                break;
+//            }
+//            Piece squareInfront = board[currentSquare[0]-i][currentSquare[1]+i]; 
+//            if (squareInfront.getPiece() == '0') {
+//                legalMoves.add(Arrays.asList(currentSquare[0]-i, currentSquare[1]+i));
+//                i++;
+//            } else if (squareInfront.getColor() != piece.getColor()) {
+//                legalMoves.add(Arrays.asList(currentSquare[0]-i, currentSquare[1]+i));
+//                break;
+//            } else {
+//                break;
+//            }
+//        }
+//    // Sjekker skrått venstre nedover
+//    } if (currentSquare[0] != 7 && currentSquare[1] != 0) {
+//        i = 1;
+//        while (true) {
+//            if (currentSquare[0] + i > 7 || currentSquare[1] - i < 0) {
+//                break;
+//            }
+//            Piece squareInfront = board[currentSquare[0]+i][currentSquare[1]-i]; 
+//            if (squareInfront.getPiece() == '0') {
+//                legalMoves.add(Arrays.asList(currentSquare[0]+i, currentSquare[1]-i));
+//                i++;
+//            } else if (squareInfront.getColor() != piece.getColor()) {
+//                legalMoves.add(Arrays.asList(currentSquare[0]+i, currentSquare[1]-i));
+//                break;
+//            } else {
+//                break;
+//            }
+//        }
+//    } 
+//
+//    return legalMoves;
+//}
+//
+//// Queen gyldige trekk
+//private List<List<Integer>> queenLegalMoves(int[] currentSquare, Piece piece) {
+//    List<List<Integer>> legalMoves = new ArrayList<>();
+//    legalMoves.addAll(rookLegalMoves(currentSquare, piece));
+//    legalMoves.addAll(bishopLegalMoves(currentSquare, piece));
+//    return legalMoves;
+//}
 
     // King gyldige trekk
-    private List<List<Integer>> kingLegalMoves(int[] currentSquare, Piece piece) {
-        List<List<Integer>> legalMoves = new ArrayList<>();
-        int kMoves[][] = {{-1,0}, {-1,1}, {0,1}, {1,1}, {1,0}, {1,-1}, {0,-1}, {-1,-1}};
+ //private List<List<Integer>> kingLegalMoves(int[] currentSquare, Piece piece) {
+ //    List<List<Integer>> legalMoves = new ArrayList<>();
+ //    int kMoves[][] = {{-1,0}, {-1,1}, {0,1}, {1,1}, {1,0}, {1,-1}, {0,-1}, {-1,-1}};
 
-        for (int[] square : kMoves) {
-            if (currentSquare[0]+square[0] >= 0 && currentSquare[0]+square[0] < 8 && currentSquare[1]+square[1] >= 0 && currentSquare[1]+square[1] < 8) {
-                Piece newSquare = board[currentSquare[0]+square[0]][currentSquare[1]+square[1]]; 
-                if (piece.getColor() != newSquare.getColor()) {
-                    legalMoves.add(Arrays.asList(currentSquare[0]+square[0], currentSquare[1]+square[1]));
-                }
-            }
-        }
-        return legalMoves;     
-    }
+ //    for (int[] square : kMoves) {
+ //        if (currentSquare[0]+square[0] >= 0 && currentSquare[0]+square[0] < 8 && currentSquare[1]+square[1] >= 0 && currentSquare[1]+square[1] < 8) {
+ //            Piece newSquare = board[currentSquare[0]+square[0]][currentSquare[1]+square[1]]; 
+ //            if (piece.getColor() != newSquare.getColor()) {
+ //                legalMoves.add(Arrays.asList(currentSquare[0]+square[0], currentSquare[1]+square[1]));
+ //            }
+ //        }
+ //    }
+ //    return legalMoves;     
+ //}
     
     public static void main(String[] args) {
         // Sjekker skolematten manuelt
         ChessGame newGame = new ChessGame();
         int[] square = {6,4};
         int[] move = {4,4};
-        Piece whiteP = new Piece('p', 'w');
+        Piece whiteP = new Pawn('w');
         newGame.movePiece(square, whiteP, move);
 
         int[] square1 = {1,4};
         int[] move1 = {3,4};
-        Piece blackP = new Piece('p', 'b');
+        Piece blackP = new Pawn('b');
         newGame.movePiece(square1, blackP, move1);
 
         int[] square2 = {7,5};
         int[] move2 = {4,2};
-        Piece whiteB = new Piece('b', 'w');
+        Piece whiteB = new Bishop('w');
         newGame.movePiece(square2, whiteB, move2);
 
         int[] square3 = {0,6};
         int[] move3 = {2,5};
-        Piece blackH = new Piece('h', 'b');
+        Piece blackH = new Horse('b');
         newGame.movePiece(square3, blackH, move3);
 
         int[] square4 = {7,3};
         int[] move4 = {3,7};
-        Piece whiteQ = new Piece('q', 'w');
+        Piece whiteQ = new Queen('w');
         newGame.movePiece(square4, whiteQ, move4);
 
         int[] square5 = {1,0};

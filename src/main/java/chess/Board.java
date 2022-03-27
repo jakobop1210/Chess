@@ -14,40 +14,34 @@ public class Board {
 
     // Lager et startbrett
     private Piece[][] createEmptyBoard(Piece[][] board) {
-        String firstRow = "rhbqkbhr";
-        String secondRow = "pppppppp";
-    
+
         for (int i = 0; i < 8; i++) {
             if (i == 0) {
-                Piece[] row1 = new Piece[8];
-                for (int j = 0; j < 8; j++) {
-                    row1[j] = new Piece(firstRow.charAt(j), 'b');
-                }
-                board[i] = row1;
+                board[i][0] = new Rook('b');
+                board[i][1]= new Horse('b');
+                board[i][2] = new Bishop('b');
+                board[i][3] = new Queen('b');
+                board[i][4]= new King('b');
+                board[i][5] = new Bishop('b');
+                board[i][6] = new Horse('b');
+                board[i][7] = new Rook('b');
             } else if (i == 1) {
-                Piece[] row2 = new Piece[8];
                 for (int j = 0; j < 8; j++) {
-                    row2[j] = new Piece(secondRow.charAt(j), 'b');
-                }
-                board[i] = row2;
+                    board[i][j] = new Pawn('b');
+                }    
             } else if (i == 6) {
-                Piece[] row7 = new Piece[8];
                 for (int j = 0; j < 8; j++) {
-                    row7[j] = new Piece(secondRow.charAt(j), 'w');
-                }
-                board[i] = row7;
+                    board[i][j] = new Pawn('w');
+                }    
             } else if (i == 7) {
-                Piece[] row8 = new Piece[8];
-                for (int j = 0; j < 8; j++) {
-                    row8[j] = new Piece(firstRow.charAt(j), 'w');
-                }
-                board[i] = row8;
-            } else {
-                Piece[] emptyRow = new Piece[8];
-                for (int j = 0; j < 8; j++) {
-                    emptyRow[j] = new Piece('0', '0');
-                }
-                board[i] = emptyRow;
+                board[i][0] = new Rook('w');
+                board[i][1]= new Horse('w');
+                board[i][2] = new Bishop('w');
+                board[i][3] = new Queen('w');
+                board[i][4]= new King('w');
+                board[i][5] = new Bishop('w');
+                board[i][6] = new Horse('w');
+                board[i][7] = new Rook('w');
             }
         }
         return board;
@@ -60,7 +54,7 @@ public class Board {
     public void printBoard() {
         for (Piece[] pieces : board) {
             for (Piece piece : pieces) {
-                System.out.print(piece.getPiece() + " ");
+                if (piece != null) System.out.print(piece.getName()+ " ");
             }
             System.out.printf("%n");
         }
