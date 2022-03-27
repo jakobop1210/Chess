@@ -12,8 +12,6 @@ public class ChessGame {
     private char winner;
     private boolean gameOver;
     private boolean check = false;
-    private boolean wKingHasMoved = false;
-    private boolean bKingHasMoved = false;
     
     // Konstruktøren som lager et nytt board og en board klasse
     public ChessGame() {
@@ -125,14 +123,14 @@ public class ChessGame {
         for (List<Integer> square : moves) {
             int[] moveTo = {square.get(0), square.get(1)};
             Piece newSquarePiece = new Piece(board[moveTo[0]][moveTo[1]].getPiece(), board[moveTo[0]][moveTo[1]].getColor());
-            Piece[] firstUpdate = {new Piece('0','0'), pieceCopy};
-            Piece[] secondUpdate = {newSquarePiece, pieceCopy};
+            Piece[] movePiece = {new Piece('0','0'), pieceCopy};
+            Piece[] movePieceBack = {newSquarePiece, pieceCopy};
 
-            updateBoard(firstUpdate, currentSquare, moveTo);
+            updateBoard(movePiece, currentSquare, moveTo);
             if (checkForCheck() == false) {
                 ifCheckMoves.add(square);
             }
-            updateBoard(secondUpdate, moveTo, currentSquare);
+            updateBoard(movePieceBack, moveTo, currentSquare);
         }
         return ifCheckMoves;
     }
@@ -183,27 +181,28 @@ public class ChessGame {
 
     // Felles metode som sjekker brikketype og deretter finner lovelige trekk
     public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece piece) {
-        List<List<Integer>> allMoves = new ArrayList<>();
+        List<List<Integer>> legalMoves = new ArrayList<>();
      
         if (piece.getPiece() == 'p') {                                  // Sjekker brikketype og legger til lovlige trekk til allMoves
-            allMoves.addAll(pawnLegalMoves(currentSquare, piece));
+            legalMoves.addAll(pawnLegalMoves(currentSquare, piece));
         } else if (piece.getPiece() == 'h') {
-            allMoves.addAll(horseLegalMoves(currentSquare, piece));
+            legalMoves.addAll(horseLegalMoves(currentSquare, piece));
         } else if (piece.getPiece() == 'r') {
-            allMoves.addAll(rookLegalMoves(currentSquare, piece));
+            legalMoves.addAll(rookLegalMoves(currentSquare, piece));
         } else if (piece.getPiece() == 'b') {
-            allMoves.addAll(bishopLegalMoves(currentSquare, piece));
+            legalMoves.addAll(bishopLegalMoves(currentSquare, piece));
         } else if (piece.getPiece() == 'q') {
-            allMoves.addAll(queenLegalMoves(currentSquare, piece));
+            legalMoves.addAll(queenLegalMoves(currentSquare, piece));
         } else if (piece.getPiece() == 'k') {
-            allMoves.addAll(kingLegalMoves(currentSquare, piece));
+            legalMoves.addAll(kingLegalMoves(currentSquare, piece));
         }                                            
-        return allMoves;
+        return legalMoves;
     }
 
     // Pawn gyldige trekk
     private List<List<Integer>> pawnLegalMoves(int[] currentSquare, Piece piece) {
         List<List<Integer>> legalMoves = new ArrayList<>();
+        
         if (piece.getColor() == 'w') {
             if (currentSquare[0] != 0) {                  
                 Piece pieceInfront = board[currentSquare[0]-1][currentSquare[1]];                             
@@ -215,7 +214,7 @@ public class ChessGame {
                 if (currentSquare[1] != 7) {
                     Piece rightDiagonal = board[currentSquare[0]-1][currentSquare[1]+1]; 
                     if (rightDiagonal.getColor() == 'b') legalMoves.add(Arrays.asList(currentSquare[0]-1, currentSquare[1]+1)); 
-                }
+                } 
                 if (currentSquare[1] != 0) {
                     Piece leftDiagonal = board[currentSquare[0]-1][currentSquare[1]-1]; 
                     if (leftDiagonal.getColor() == 'b') legalMoves.add(Arrays.asList(currentSquare[0]-1, currentSquare[1]-1)); 
@@ -439,10 +438,6 @@ public class ChessGame {
                     legalMoves.add(Arrays.asList(currentSquare[0]+square[0], currentSquare[1]+square[1]));
                 }
             }
-        }
-        // Rokade (ikke ferdig!)
-        if (piece.getColor() == 'w' && wKingHasMoved == false || piece.getColor() == 'b' && bKingHasMoved == false) {
-
         }
         return legalMoves;     
     }
