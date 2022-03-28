@@ -8,7 +8,7 @@ public class King extends Piece {
 
     public King(char color) {
         super(color);
-        this.setJumpable(true);
+        super.setJumpable(true);
     }
 
     public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) {

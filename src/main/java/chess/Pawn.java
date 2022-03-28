@@ -5,15 +5,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Pawn extends Piece {
-    private int[][] pawnBMoves = {{1,0}, {2,0}, {1,1}, {1,-1}};
-    private int[][] pawnWMoves = {{-1,0}, {-2,0}, {-1,1}, {-1,-1}};
+  //private int[][] pawnBMoves = {{1,0}, {2,0}, {1,1}, {1,-1}};
+  //private int[][] pawnWMoves = {{-1,0}, {-2,0}, {-1,1}, {-1,-1}};
     
     public Pawn(char color) {
         super(color);
     }
 
-
-    public List<List<Integer>> findlLegalMoves(int[] currentSquare, Piece[][] board) {
+    public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) {
         List<List<Integer>> legalMoves = new ArrayList<>();
       //Piece piece = board[currentSquare[0]][currentSquare[1]];
       //int infront, twoInfront;
@@ -38,11 +37,15 @@ public class Pawn extends Piece {
                     if (pieceInfront == null) legalMoves.add(Arrays.asList(currentSquare[0]-1, currentSquare[1]));
                     if (currentSquare[1] != 7) {
                         Piece rightDiagonal = board[currentSquare[0]-1][currentSquare[1]+1]; 
-                        if (rightDiagonal.getColor() == 'b') legalMoves.add(Arrays.asList(currentSquare[0]-1, currentSquare[1]+1)); 
+                        if (rightDiagonal != null) {
+                            if (rightDiagonal.getColor() == 'b') legalMoves.add(Arrays.asList(currentSquare[0]-1, currentSquare[1]+1)); 
+                        }
                     } 
                     if (currentSquare[1] != 0) {
                         Piece leftDiagonal = board[currentSquare[0]-1][currentSquare[1]-1]; 
-                        if (leftDiagonal.getColor() == 'b') legalMoves.add(Arrays.asList(currentSquare[0]-1, currentSquare[1]-1)); 
+                        if (leftDiagonal != null) {
+                            if (leftDiagonal.getColor() == 'b') legalMoves.add(Arrays.asList(currentSquare[0]-1, currentSquare[1]-1));
+                        } 
                     }
                 }                  
             } else { 
@@ -55,11 +58,15 @@ public class Pawn extends Piece {
                     if (pieceInfront == null) legalMoves.add(Arrays.asList(currentSquare[0]+1, currentSquare[1]));
                     if (currentSquare[1] != 7) {
                         Piece rightDiagonal = board[currentSquare[0]+1][currentSquare[1]+1]; 
-                        if (rightDiagonal.getColor() == 'w') legalMoves.add(Arrays.asList(currentSquare[0]+1, currentSquare[1]+1)); 
+                        if (rightDiagonal != null) {
+                            if (rightDiagonal.getColor() == 'w') legalMoves.add(Arrays.asList(currentSquare[0]+1, currentSquare[1]+1)); 
+                        }
                     }
                     if (currentSquare[1] != 0) {
                         Piece leftDiagonal = board[currentSquare[0]+1][currentSquare[1]-1]; 
-                        if (leftDiagonal.getColor() == 'w') legalMoves.add(Arrays.asList(currentSquare[0]+1, currentSquare[1]-1)); 
+                        if (leftDiagonal != null) {
+                            if (leftDiagonal.getColor() == 'w') legalMoves.add(Arrays.asList(currentSquare[0]+1, currentSquare[1]-1)); 
+                        }
                     }
                 }            
             }

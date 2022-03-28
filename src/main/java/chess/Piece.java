@@ -49,7 +49,9 @@ public class Piece {
                     Piece currentSquarePiece = board[currentSquare[0]][currentSquare[1]];
                     Piece moveToPiece = board[currentSquare[0]+square[0]][currentSquare[1]+square[1]];
 
-                    if (currentSquarePiece.getColor() == moveToPiece.getColor()) {
+                    if (moveToPiece == null) {
+                        legalMoves.add(Arrays.asList(currentSquare[0]+square[0], currentSquare[1]+square[1]));
+                    } else if (currentSquarePiece.getColor() == moveToPiece.getColor()) {
                         if (!this.jumpable) break;
                     } else {
                         legalMoves.add(Arrays.asList(currentSquare[0]+square[0], currentSquare[1]+square[1]));
@@ -62,9 +64,9 @@ public class Piece {
         return legalMoves;
     }
 
-   public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) {
-       throw new UnsupportedOperationException("Not implemented");
-   }
+    public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
 
     public boolean isInsideBoard(int[] currentSquare, int[] moveTo) {

@@ -54,7 +54,11 @@ public class Board {
     public void printBoard() {
         for (Piece[] pieces : board) {
             for (Piece piece : pieces) {
-                if (piece != null) System.out.print(piece.getName()+ " ");
+                if (piece == null) {
+                    System.out.print('0');
+                } else {
+                    System.out.print(piece.getName().charAt(6));
+                }
             }
             System.out.printf("%n");
         }

@@ -7,7 +7,7 @@ public class Horse extends Piece {
 
     public Horse(char color) {
         super(color);
-        this.setJumpable(true);
+        super.setJumpable(true);
     }
 
     public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) {

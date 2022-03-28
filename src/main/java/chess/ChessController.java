@@ -112,26 +112,28 @@ public class ChessController {
     // Gjennomfører trekket hvis det er lovlig og kaller updateImage() og checkResult()
     public void doMove(int[] lastButtonClickedSquare, int i, int j) {
         int[] moveTo = new int[]{i,j};
-        Piece lastPieceClickedOn = new Piece(board[lastButtonClickedSquare[0]][lastButtonClickedSquare[1]].getPiece(), board[lastButtonClickedSquare[0]][lastButtonClickedSquare[1]].getColor());
+        Piece lastPieceClickedOn = board[lastButtonClickedSquare[0]][lastButtonClickedSquare[1]];
 
-        if (game.movePiece(lastButtonClickedSquare, lastPieceClickedOn, moveTo)) {
-            game.printboard();
-            setImageUrl(lastPieceClickedOn, i, j);
-            setImageUrl(new Piece('0', '0'), lastButtonClickedSquare[0], lastButtonClickedSquare[1]);
-            checkResult();
-        } 
+        if (lastPieceClickedOn != null) {
+            if (game.movePiece(lastButtonClickedSquare, lastPieceClickedOn, moveTo)) {
+                game.printboard();
+                setImageUrl(lastPieceClickedOn, i, j);
+                setImageUrl(null, lastButtonClickedSquare[0], lastButtonClickedSquare[1]);
+                checkResult();
+            } 
+        }
     }
 
     private void setImageUrl(Piece piece, int i, int j) {
-        if (piece.getColor() == 'w') {
-            String pieceUrl = "Pieces/" + Character.toString(piece.getPiece()) + ".png";
-            imageViewArr[i][j].setImage(new Image(this.getClass().getResource(pieceUrl).toString()));
-        } else if (piece.getColor() == 'b') {
-            String pieceUrl = "Pieces/" + Character.toString(piece.getPiece()) + Character.toString(piece.getPiece()) + ".png";
+        if (piece == null) {
+            imageViewArr[i][j].setImage(null);
+        } else if (piece.getColor() == 'w') {
+            String pieceUrl = "Pieces/" + Character.toString(piece.getName().charAt(6)) + ".png";
             imageViewArr[i][j].setImage(new Image(this.getClass().getResource(pieceUrl).toString()));
         } else {
-            imageViewArr[i][j].setImage(null);
-        }
+            String pieceUrl = "Pieces/" + Character.toString(piece.getName().charAt(6)) + Character.toString(piece.getName().charAt(6)) + ".png";
+            imageViewArr[i][j].setImage(new Image(this.getClass().getResource(pieceUrl).toString()));
+        } 
     }
 
     // Sjekker resultatene etter et trekk

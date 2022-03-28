@@ -9,7 +9,7 @@ public class Bishop extends Piece {
 
     public Bishop(char color) {
         super(color);
-        this.setJumpable(false);
+        super.setJumpable(false);
     }
 
     public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) {

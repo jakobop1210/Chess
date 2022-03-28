@@ -11,7 +11,7 @@ public class Queen extends Rook {
 
     public Queen(char color) {
         super(color);
-        this.setJumpable(false);
+        super.setJumpable(false);
     }
 
     public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) {
