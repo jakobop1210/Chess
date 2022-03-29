@@ -4,12 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Rook extends Piece {
+    private boolean hasMoved = false;
     private int moves[][][] = {{{0,1}, {0,2}, {0,3}, {0,4}, {0,5}, {0,6}, {0,7}}, {{0,-1}, {0,-2}, {0,-3}, {0,-4}, {0,-5}, {0,-6}, {0,-7}}, 
                                 {{1,0}, {2,0}, {3,0}, {4,0}, {5,0}, {6,0}, {7,0}}, {{-1,0}, {-2,0}, {-3,0}, {-4,0}, {-5,0}, {-6,0}, {-7,0}}};
 
     public Rook(char color) {
         super(color);
         super.setJumpable(false);
+    }
+
+    public boolean isHasMoved() {
+        return hasMoved;
+    }
+
+    public void setHasMoved(boolean hasMoved) {
+        this.hasMoved = hasMoved;
     }
 
     public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) {

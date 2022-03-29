@@ -88,24 +88,24 @@ public class ChessController {
         return button;
     }
 
+    // Oppdaterer hvilken rute som er trykket på og kaller doMove()
+    public void clickedButton(Button button, int i, int j) {
+        if (gameOver == false) {
+            paneArr[i][j].setStyle("-fx-background-color:#FDFD66");
+            if (lastClickedSquare != null) {
+                setPaneRightColor(); 
+                doMove(lastClickedSquare, i, j);
+            } 
+            lastClickedSquare = new int[]{i,j};
+        }
+    }
+
     // Setter Pane ruten til original farge
     private void setPaneRightColor() {
         if (lastClickedSquare[0]%2 == 0 && lastClickedSquare[1]%2 == 1 || lastClickedSquare[0]%2 == 1 && lastClickedSquare[1]%2 == 0) {
             paneArr[lastClickedSquare[0]][lastClickedSquare[1]].setStyle("-fx-background-color:green");
         } else {
             paneArr[lastClickedSquare[0]][lastClickedSquare[1]].setStyle("-fx-background-color:#FFFDE7");
-        }
-    }
-
-    // Oppdaterer hvilken rute som er trykket på og kaller doMove()
-    public void clickedButton(Button button, int i, int j) {
-        if (gameOver == false) {
-            paneArr[i][j].setStyle("-fx-background-color:#FDFD66");
-            if (lastClickedSquare != null) {
-                setPaneRightColor();
-                doMove(lastClickedSquare, i, j);
-            } 
-            lastClickedSquare = new int[]{i,j};
         }
     }
 
@@ -117,8 +117,13 @@ public class ChessController {
         if (lastPieceClickedOn != null) {
             if (game.movePiece(lastButtonClickedSquare, lastPieceClickedOn, moveTo)) {
                 game.printboard();
-                setImageUrl(lastPieceClickedOn, i, j);
+                setImageUrl(board[moveTo[0]][moveTo[1]], i, j);
                 setImageUrl(null, lastButtonClickedSquare[0], lastButtonClickedSquare[1]);
+                if (game.getMoveWasCastling()) {
+                    //Piece castlingRook = board[game.getRookCastlePos()[0][0]][game.getRookCastlePos()[0][1]];
+                    setImageUrl(new Rook(game.getNextTurn()), game.getRookCastlePos()[1][0], game.getRookCastlePos()[1][1]);
+                    setImageUrl(null, game.getRookCastlePos()[0][0], game.getRookCastlePos()[0][1]);
+                }
                 checkResult();
             } 
         }

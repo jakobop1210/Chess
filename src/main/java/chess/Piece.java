@@ -6,29 +6,21 @@ import java.util.List;
 
 public class Piece {
     private char color;
+    private boolean hasMoved;
     private boolean jumpable;
     String className = this.getClass().getName();
 
     public Piece(char color) {
-        if (color != 'w' && color != 'b' && color != '0') {
+        if (color != 'w' && color != 'b') {
             throw new IllegalArgumentException("Ikke gyldig farge!");
         }
         this.color = color;
-    }
-
-    protected boolean isValidPieces(char piece) {
-        String validPieces = "rhbqkp0";
-        if (!validPieces.contains(Character.toString(piece))) {
-            throw new IllegalArgumentException("Ikke gydlig brikke!");
-        }
-        return true;
     }
 
     public String getName() {
         return className;
     }
 
-    
     public boolean isJumpable() {
         return jumpable;
     }
@@ -36,7 +28,15 @@ public class Piece {
     public char getColor() {
         return color;
     }
-    
+
+    public boolean isHasMoved() {
+        return hasMoved;
+    }
+
+    public void setHasMoved(boolean hasMoved) {
+        this.hasMoved = hasMoved;
+    }
+
     public void setJumpable(boolean jumpable) {
         this.jumpable = jumpable;
     }
@@ -68,18 +68,11 @@ public class Piece {
         throw new UnsupportedOperationException("Not implemented");
     }
 
-
     public boolean isInsideBoard(int[] currentSquare, int[] moveTo) {
         if (currentSquare[0]+moveTo[0] >= 0 && currentSquare[0]+moveTo[0] < 8 
         && currentSquare[1]+moveTo[1] >= 0 && currentSquare[1]+moveTo[1] < 8) {
             return true;
         }
         return false;
-    }
-
-
-
-    public static void main(String[] args) {
-    
     }
 }

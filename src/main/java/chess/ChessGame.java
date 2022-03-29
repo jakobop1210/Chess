@@ -12,6 +12,8 @@ public class ChessGame {
     private char winner;
     private boolean gameOver;
     private boolean check = false;
+    private boolean moveWasCastling = false;
+    private int[][] rookCastlePos;
     
     // Konstruktøren som lager et nytt board og en board klasse
     public ChessGame() {
@@ -40,6 +42,18 @@ public class ChessGame {
         return turn;
     }
 
+    public char getNextTurn() {
+        return nextTurn;
+    }
+
+    public boolean getMoveWasCastling() {
+        return moveWasCastling;
+    }
+
+    public int[][] getRookCastlePos() {
+        return rookCastlePos;
+    }
+
     // Printer brettet i konsollen
     public void printboard() {
         boardClass.printBoard();
@@ -49,22 +63,28 @@ public class ChessGame {
     public boolean movePiece(int[] currentSquare, Piece piece, int[] move) {
         if (piece.getColor() != turn) {
             return false;
-        } 
-        System.out.println(piece.getName());
+        }
+        moveWasCastling = false;
         List<List<Integer>> legalMoves = piece.findLegalMoves(currentSquare, board);
         legalMoves = ifCheck(piece, currentSquare, legalMoves);
         List<Integer> movetoList = Arrays.asList(move[0], move[1]);
 
         if (legalMoves.contains(movetoList)) {
-            if (piece.getName() == "chess.Pawn") {
-                if (move[0] == 0 || move[0] == 7) {
-                    board[currentSquare[0]][currentSquare[1]] = new Queen(piece.getColor());
+            if (piece.getName() == "chess.Pawn" && (move[0] == 0 || move[0] == 7)) { 
+                piece = new Queen(piece.getColor());
+            } else if (piece.getName() == "chess.King" && Math.abs(currentSquare[1]-move[1]) == 2 && !check) {
+                System.out.println("1");
+                if (!canKingCastle(currentSquare, piece, move)) {
+                    System.out.println("Kongen kan ikke rokere, prøv et annet trekk!");
+                    return false;
                 }
+                doCastle(currentSquare, move);
             }
-
-            Piece[] update = {null, piece};
-            updateBoard(update, currentSquare, move);
+            Piece[] updatePieces = {null, piece};
+            piece.setHasMoved(true);
+            updateBoard(updatePieces, currentSquare, move);
             updateTurn();
+
             if (checkForCheck()) {
                 System.out.println("Du står i sjakk!");
                 check = true;
@@ -78,8 +98,8 @@ public class ChessGame {
             }
             return true;
         }
-            System.out.println("Brikken kan ikke flytte ditt, prøv et annet trekk!");
-            return false;
+        System.out.println("Brikken kan ikke flytte ditt, prøv et annet trekk!");
+        return false;
     }
 
     // Oppdaterer turen
@@ -92,7 +112,36 @@ public class ChessGame {
             nextTurn = 'b';
         }
     }
+
+    private boolean canKingCastle(int[] currentSquare, Piece piece, int[] move) {
+        List<List<Integer>> castlePath = new ArrayList<>();
+        castlePath.add(Arrays.asList(currentSquare[0], currentSquare[1]+1));
+        castlePath.add(Arrays.asList(currentSquare[0], currentSquare[1]+2));
+        if (currentSquare[1] > move[1]) {
+            castlePath.add(Arrays.asList(currentSquare[0], currentSquare[1]-1));
+            castlePath.add(Arrays.asList(currentSquare[0], currentSquare[1]-2));
+        }
+
+        castlePath = ifCheck(piece, currentSquare, castlePath);
+        if (castlePath.size() < 2) return false;
+        return true;
+    }
    
+    private void doCastle(int[] currentSquare, int[] move) {
+        int rookPlacementReleativeToKing = 3;
+        int rookMoveToRealtiveToKing = 1;
+        if (currentSquare[1] > move[1]) {
+            rookPlacementReleativeToKing = -4;
+            rookMoveToRealtiveToKing = -1;
+        }
+        int[] rookSquare = new int[]{currentSquare[0], currentSquare[1]+rookPlacementReleativeToKing};
+        int[] rookMoveto = new int[]{currentSquare[0], currentSquare[1]+rookMoveToRealtiveToKing};
+        Piece[] updateRook = {null, board[rookSquare[0]][rookSquare[1]]};
+        updateBoard(updateRook, rookSquare, rookMoveto);
+
+        moveWasCastling = true;
+        rookCastlePos = new int[][]{rookSquare, rookMoveto};
+    }
     // Oppdaterer brettet
     private void updateBoard(Piece[] pieces, int[] currentSquare, int[] move) {    
         // Setter første brukke i pieces på currentSquare feltet
@@ -103,32 +152,18 @@ public class ChessGame {
 
     // Finner kongen sin rute til fargen turn
     private int[] findKingSquare(char turn) {
-        int[] kingSquare = new int[2];
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
-                if (board[i][j] != null) {
-                    if (board[i][j].getName() == "chess.King" && board[i][j].getColor() == turn) {
-                        kingSquare[0] = i;
-                        kingSquare[1] = j;
-                    }
-                }
-            }
-        }
-        return kingSquare;
+      int[] kingSquare = new int[2];
+      for (int i = 0; i < board.length; i++) {
+        for (int j = 0; j < board[i].length; j++) {
+            if (board[i][j] != null) {
+                if (board[i][j].getName() == "chess.King" && board[i][j].getColor() == turn) {
+                    kingSquare = new int[]{i,j};
+                  }
+              }
+          }
+      }
+      return kingSquare;
     }
-
- //private Piece clone(Piece piece) {
- //    Piece newPiece;
- //    if (piece == null) return null;
- //    if (piece.getName() == "chess.Pawn") newPiece = new Pawn(piece.getColor());
- //    else if (piece.getName() == "chess.Rook") newPiece = new Rook(piece.getColor());
- //    else if (piece.getName() == "chess.Horse") newPiece = new Horse(piece.getColor());
- //    else if (piece.getName() == "chess.Bishop") newPiece = new Bishop(piece.getColor());
- //    else if (piece.getName() == "chess.King") newPiece = new King(piece.getColor());
- //    else newPiece = new Queen(piece.getColor());
-
- //    return newPiece;
- //}
 
     // Sjekker hvilke trekk som opphever sjakken i listen moves
     private List<List<Integer>> ifCheck(Piece piece, int[] currentSquare, List<List<Integer>> moves) {
