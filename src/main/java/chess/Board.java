@@ -7,9 +7,30 @@ public class Board {
         this.board = createEmptyBoard(this.board);
     }
 
-    public Board(Piece[][] board) {
-        this.board = board;
+    public void setBoard(char[][] charBoard) {
+        for (int i = 0; i < this.board.length; i++) {
+            for (int j = 0; j < this.board[i].length; j++) {
+                this.board[i][j] = createPiece(charBoard[i][j]);
+            }
+        }
     }
+
+    public Piece createPiece(char piece) {
+        if (piece == 'P') return new Pawn('w');
+        if (piece == 'R') return new Rook('w');
+        if (piece == 'H') return new Horse('w');
+        if (piece == 'B') return new Bishop('w');
+        if (piece == 'Q') return new Queen('w');
+        if (piece == 'K') return new King('w');
+        if (piece == 'p') return new Pawn('b');
+        if (piece == 'r') return new Rook('b');
+        if (piece == 'h') return new Horse('b');
+        if (piece == 'b') return new Bishop('b');
+        if (piece == 'q') return new Queen('b');
+        if (piece == 'k') return new King('b');
+        return null;
+    }
+        
 
     // Lager et startbrett
     private Piece[][] createEmptyBoard(Piece[][] board) {
@@ -51,16 +72,23 @@ public class Board {
     }
 
     public void printBoard() {
-        for (Piece[] pieces : board) {
-            for (Piece piece : pieces) {
-                if (piece == null) {
-                    System.out.print('0');
+        System.out.print("{");
+        for (int i = 0; i < board.length; i++) {
+            System.out.print("{");
+            for (int j = 0; j < board[i].length; j++) {
+                if (board[i][j] == null) {
+                    System.out.print("'0',");
                 } else {
-                    System.out.print(piece.getName().charAt(6));
+                    if (board[i][j].getColor() == 'w') {
+                        System.out.print("'"+board[i][j].getName().charAt(6)+"',");
+                    } else {
+                        System.out.print("'"+Character.toLowerCase(board[i][j].getName().charAt(6))+"',");
+                    }
                 }
             }
-            System.out.printf("%n");
+            System.out.print("}, ");
         }
+        System.out.print("}");
     }
     public static void main(String[] args) {
         Board board1 = new Board();

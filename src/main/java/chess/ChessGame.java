@@ -13,7 +13,7 @@ public class ChessGame {
     private boolean gameOver;
     private boolean check = false;
     private boolean moveWasCastling = false;
-    private int[][] rookCastlePos;
+    int[][] rookCastlePos;
     
     // Konstruktøren som lager et nytt board og en board klasse
     public ChessGame() {
@@ -25,6 +25,7 @@ public class ChessGame {
     public Piece[][] getBoard() {
         return board;
     }
+
 
     public char getWinner() {
         return winner;
@@ -59,6 +60,10 @@ public class ChessGame {
         boardClass.printBoard();
     }
 
+    public void setBoard(char[][] charBoard) {
+        boardClass.setBoard(charBoard);
+    }
+
     // FLytter brikke, oppdaterer brett, oppdaterer tur, sjekker for sjakk og sjakkmatt
     public boolean movePiece(int[] currentSquare, Piece piece, int[] move) {
         if (piece.getColor() != turn) {
@@ -73,7 +78,6 @@ public class ChessGame {
             if (piece.getName() == "chess.Pawn" && (move[0] == 0 || move[0] == 7)) { 
                 piece = new Queen(piece.getColor());
             } else if (piece.getName() == "chess.King" && Math.abs(currentSquare[1]-move[1]) == 2 && !check) {
-                System.out.println("1");
                 if (!canKingCastle(currentSquare, piece, move)) {
                     System.out.println("Kongen kan ikke rokere, prøv et annet trekk!");
                     return false;
@@ -118,8 +122,7 @@ public class ChessGame {
         castlePath.add(Arrays.asList(currentSquare[0], currentSquare[1]+1));
         castlePath.add(Arrays.asList(currentSquare[0], currentSquare[1]+2));
         if (currentSquare[1] > move[1]) {
-            castlePath.add(Arrays.asList(currentSquare[0], currentSquare[1]-1));
-            castlePath.add(Arrays.asList(currentSquare[0], currentSquare[1]-2));
+            castlePath = Arrays.asList(Arrays.asList(currentSquare[0], currentSquare[1]-1), Arrays.asList(currentSquare[0], currentSquare[1]-2));
         }
 
         castlePath = ifCheck(piece, currentSquare, castlePath);

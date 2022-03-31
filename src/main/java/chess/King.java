@@ -15,11 +15,9 @@ public class King extends Piece {
         super.setJumpable(true);
     }
 
-    
     public boolean isHasMoved() {
         return hasMoved;
     }
-
 
     public void setHasMoved(boolean hasMoved) {
         this.hasMoved = hasMoved;
