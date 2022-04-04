@@ -26,7 +26,6 @@ public class ChessGame {
         return board;
     }
 
-
     public char getWinner() {
         return winner;
     }
@@ -64,41 +63,41 @@ public class ChessGame {
         boardClass.setBoard(charBoard);
     }
 
-    // FLytter brikke, oppdaterer brett, oppdaterer tur, sjekker for sjakk og sjakkmatt
+    // FLytter brikke hvis lovlig, oppdaterer brett, oppdaterer tur, sjekker for sjakk, sjakkmatt og resultat
     public boolean movePiece(int[] currentSquare, Piece piece, int[] move) {
         if (piece.getColor() != turn) {
             return false;
-        }
+        } 
         moveWasCastling = false;
+        check = false;
+        if (checkForCheck()) check = true;
+
         List<List<Integer>> legalMoves = piece.findLegalMoves(currentSquare, board);
-        legalMoves = ifCheck(piece, currentSquare, legalMoves);
+        legalMoves = filterOutCheckMoves(piece, currentSquare, legalMoves);
         List<Integer> movetoList = Arrays.asList(move[0], move[1]);
 
         if (legalMoves.contains(movetoList)) {
             if (piece.getName() == "chess.Pawn" && (move[0] == 0 || move[0] == 7)) { 
                 piece = new Queen(piece.getColor());
-            } else if (piece.getName() == "chess.King" && Math.abs(currentSquare[1]-move[1]) == 2 && !check) {
-                if (!canKingCastle(currentSquare, piece, move)) {
+            } else if (piece.getName() == "chess.King" && Math.abs(currentSquare[1]-move[1]) == 2) {
+                if (!canKingCastle(currentSquare, piece, move) || check) {
                     System.out.println("Kongen kan ikke rokere, prøv et annet trekk!");
                     return false;
                 }
-                doCastle(currentSquare, move);
+                updateRook(currentSquare, move);
             }
             Piece[] updatePieces = {null, piece};
             piece.setHasMoved(true);
             updateBoard(updatePieces, currentSquare, move);
             updateTurn();
 
-            if (checkForCheck()) {
-                System.out.println("Du står i sjakk!");
-                check = true;
-                if (checkForMate()) {
-                    winner = nextTurn;
-                    System.out.println(winner + " vant med sjakkmatt!");
-                    gameOver = true;
-                }
-            } else {
-                check = false;
+            if (checkForCheck() && checkForMate()) {
+                winner = nextTurn;
+                System.out.println(winner + " vant med sjakkmatt!");
+                gameOver = true;
+            } else if (checkForMate()) {
+                System.out.println("Det ble uavgjort");
+                gameOver = true;
             }
             return true;
         }
@@ -117,34 +116,6 @@ public class ChessGame {
         }
     }
 
-    private boolean canKingCastle(int[] currentSquare, Piece piece, int[] move) {
-        List<List<Integer>> castlePath = new ArrayList<>();
-        castlePath.add(Arrays.asList(currentSquare[0], currentSquare[1]+1));
-        castlePath.add(Arrays.asList(currentSquare[0], currentSquare[1]+2));
-        if (currentSquare[1] > move[1]) {
-            castlePath = Arrays.asList(Arrays.asList(currentSquare[0], currentSquare[1]-1), Arrays.asList(currentSquare[0], currentSquare[1]-2));
-        }
-
-        castlePath = ifCheck(piece, currentSquare, castlePath);
-        if (castlePath.size() < 2) return false;
-        return true;
-    }
-   
-    private void doCastle(int[] currentSquare, int[] move) {
-        int rookPlacementReleativeToKing = 3;
-        int rookMoveToRealtiveToKing = 1;
-        if (currentSquare[1] > move[1]) {
-            rookPlacementReleativeToKing = -4;
-            rookMoveToRealtiveToKing = -1;
-        }
-        int[] rookSquare = new int[]{currentSquare[0], currentSquare[1]+rookPlacementReleativeToKing};
-        int[] rookMoveto = new int[]{currentSquare[0], currentSquare[1]+rookMoveToRealtiveToKing};
-        Piece[] updateRook = {null, board[rookSquare[0]][rookSquare[1]]};
-        updateBoard(updateRook, rookSquare, rookMoveto);
-
-        moveWasCastling = true;
-        rookCastlePos = new int[][]{rookSquare, rookMoveto};
-    }
     // Oppdaterer brettet
     private void updateBoard(Piece[] pieces, int[] currentSquare, int[] move) {    
         // Setter første brukke i pieces på currentSquare feltet
@@ -168,8 +139,8 @@ public class ChessGame {
       return kingSquare;
     }
 
-    // Sjekker hvilke trekk som opphever sjakken i listen moves
-    private List<List<Integer>> ifCheck(Piece piece, int[] currentSquare, List<List<Integer>> moves) {
+    // Sjekker hvilke trekk som ikke opphever eller fører til sjakk
+    private List<List<Integer>> filterOutCheckMoves(Piece piece, int[] currentSquare, List<List<Integer>> moves) {
         //Piece pieceCopy = new Piece(piece.getPiece(), piece.getColor());
         List<List<Integer>> ifCheckMoves = new ArrayList<>();
         Piece pieceCopy = piece;
@@ -223,7 +194,7 @@ public class ChessGame {
                     if (board[i][j].getColor() == turn) {
                         int[] currentSquare = {i,j};
                         List<List<Integer>> pieceMoves = board[i][j].findLegalMoves(currentSquare, board);
-                        pieceMoves = ifCheck(board[i][j], currentSquare, pieceMoves);
+                        pieceMoves = filterOutCheckMoves(board[i][j], currentSquare, pieceMoves);
                         if (!pieceMoves.isEmpty()) {
                             allMoves.add(pieceMoves);
                         }
@@ -237,47 +208,34 @@ public class ChessGame {
         return mate;
     }
 
-    
-    public static void main(String[] args) {
-        // Sjekker skolematten manuelt
-        ChessGame newGame = new ChessGame();
-        int[] square = {6,4};
-        int[] move = {4,4};
-        Piece whiteP = new Pawn('w');
-        newGame.movePiece(square, whiteP, move);
+    // Sjekker om noen brikker angriper kongens castle path
+    private boolean canKingCastle(int[] currentSquare, Piece piece, int[] move) {
+        List<List<Integer>> castlePath = new ArrayList<>();
+        castlePath.add(Arrays.asList(currentSquare[0], currentSquare[1]+1));
+        castlePath.add(Arrays.asList(currentSquare[0], currentSquare[1]+2));
+        if (currentSquare[1] > move[1]) {
+            castlePath = Arrays.asList(Arrays.asList(currentSquare[0], currentSquare[1]-1), Arrays.asList(currentSquare[0], currentSquare[1]-2));
+        }
 
-        int[] square1 = {1,4};
-        int[] move1 = {3,4};
-        Piece blackP = new Pawn('b');
-        newGame.movePiece(square1, blackP, move1);
+        castlePath = filterOutCheckMoves(piece, currentSquare, castlePath);
+        if (castlePath.size() < 2) return false;
+        return true;
+    }
+   
+    // Gjennofører castle trekket 
+    private void updateRook(int[] currentSquare, int[] move) {
+        int rookPlacementReleativeToKing = 3;
+        int rookMoveToRealtiveToKing = 1;
+        if (currentSquare[1] > move[1]) {
+            rookPlacementReleativeToKing = -4;
+            rookMoveToRealtiveToKing = -1;
+        }
+        int[] rookSquare = new int[]{currentSquare[0], currentSquare[1]+rookPlacementReleativeToKing};
+        int[] rookMoveto = new int[]{currentSquare[0], currentSquare[1]+rookMoveToRealtiveToKing};
+        Piece[] updateRook = {null, board[rookSquare[0]][rookSquare[1]]};
+        updateBoard(updateRook, rookSquare, rookMoveto);
 
-        int[] square2 = {7,5};
-        int[] move2 = {4,2};
-        Piece whiteB = new Bishop('w');
-        newGame.movePiece(square2, whiteB, move2);
-
-        int[] square3 = {0,6};
-        int[] move3 = {2,5};
-        Piece blackH = new Horse('b');
-        newGame.movePiece(square3, blackH, move3);
-
-        int[] square4 = {7,3};
-        int[] move4 = {3,7};
-        Piece whiteQ = new Queen('w');
-        newGame.movePiece(square4, whiteQ, move4);
-
-        int[] square5 = {1,0};
-        int[] move5 = {2,0};
-        newGame.movePiece(square5, blackP, move5);
-        
-        int[] square6 = {3,7};
-        int[] move6 = {1,5};
-        newGame.movePiece(square6, whiteQ, move6);
-
-      //int[] square7 = {2,7};
-      //int[] move7 = {0,6};
-      //newGame.movePiece(square7, blackH, move7);
-
-        newGame.printboard();
+        moveWasCastling = true;
+        rookCastlePos = new int[][]{rookSquare, rookMoveto};
     }
 }

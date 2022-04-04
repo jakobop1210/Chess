@@ -31,7 +31,6 @@ public class Board {
         return null;
     }
         
-
     // Lager et startbrett
     private Piece[][] createEmptyBoard(Piece[][] board) {
 
@@ -89,9 +88,5 @@ public class Board {
             System.out.print("}, ");
         }
         System.out.print("}");
-    }
-    public static void main(String[] args) {
-        Board board1 = new Board();
-        board1.printBoard();
     }
 }

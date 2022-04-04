@@ -1,72 +1,71 @@
 package chess;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class CastlingTest {
-   
+    private ChessGame game;
+    private int[] whiteKingSquare, whiteCastleRight, whiteCastleLeft;
+    private int[] blackKingSquare, blackCastleRight, blackCastleLeft;
+    private Piece whiteKing, blackKing;
+  
+    @BeforeEach
+	public void setUp() {
+        game = new ChessGame();
+        whiteKing = new King('w');
+        blackKing = new King('b');
+
+        whiteKingSquare = new int[]{7,4};
+        whiteCastleRight = new int[]{7,6};
+        whiteCastleLeft = new int[]{7,2};
+        blackKingSquare = new int[]{0,4};
+        blackCastleRight = new int[]{0,6};
+        blackCastleLeft = new int[]{0,2};
+    }
     
     @Test
-    void testLegalCastling() {
-        ChessGame legalCastleGame =  new ChessGame();
+    @DisplayName("Sjekker lovlig castling til høyre")
+    public void testLegalCastlingRight() {
         char[][] boardChar = new char[][] {{'r','0','b','q','k','0','0','r'}, {'p','p','p','0','b','p','p','p'}, 
         {'0','0','h','p','0','h','0','0'}, {'0','B','0','0','p','0','0','0'}, {'0','0','0','P','P','0','0','0'}, 
         {'0','0','H','0','0','H','0','0'}, {'P','P','P','0','0','P','P','P'}, {'R','0','B','Q','K','0','0','R'}};
-        legalCastleGame.setBoard(boardChar);
+        game.setBoard(boardChar);
 
-        int[] square = {7,4};
-        int[] move = {7,6};
-        Piece whiteK = new King('w');
-        assertEquals(true, legalCastleGame.movePiece(square, whiteK, move));
-
-        int[] square2 = {0,4};
-        int[] move2 = {0,6};
-        Piece blackK = new King('b');
-        assertEquals(true, legalCastleGame.movePiece(square2, blackK, move2));
+        assertEquals(true, game.movePiece(whiteKingSquare, whiteKing, whiteCastleRight), "Trekket burde være lovlig");
+        assertEquals(false, game.movePiece(whiteKingSquare, whiteKing, whiteCastleLeft), "Kan ikke castle med brikker i veien");
+        
+        assertEquals(true, game.movePiece(blackKingSquare, blackKing, blackCastleRight), "Det er lovlig rokade");
+        assertEquals(false, game.movePiece(blackKingSquare, blackKing, blackCastleLeft), "Kan ikke castle med brikker i veien");
     } 
 
     @Test
-    void testIllegalCastlingBecauseOfChess() {
-        ChessGame legalCastleGame =  new ChessGame();
-        char[][] boardChar = new char[][] {{'r','0','0','0','k','b','h','r'}, {'p','p','p','0','0','p','p','p'}, 
-        {'0','0','h','p','b','0','0','0'}, {'0','0','0','0','p','0','B','0'}, {'0','0','B','0','P','0','0','0'}, 
-        {'0','0','0','P','0','0','P','q'}, {'P','P','P','0','H','P','0','P'}, {'R','H','0','Q','K','0','0','R'}};
-        legalCastleGame.setBoard(boardChar);
+    @DisplayName("Sjekker ulovlig castling pga feltene kongen passerer er i sjakk")
+    public void testPieceAttackingPath() {
+        char[][] boardChar = new char[][] {{'r','0','0','0','k','b','h','r'}, {'p','p','p','q','0','p','p','p'},
+        {'0','0','h','0','0','0','0','0'}, {'0','0','0','p','p','0','B','0'}, {'0','0','0','P','P','0','b','H'},
+        {'0','0','H','0','0','0','0','0'}, {'P','P','P','Q','0','P','P','P'}, {'R','0','0','0','K','B','0','R'}};
+        game.setBoard(boardChar);
 
-        int[] square = {7,4};
-        int[] castleRight = {7,6};
-        int[] castleLeft = {7,2};
-        Piece whiteK = new King('w');
-        assertEquals(false, legalCastleGame.movePiece(square, whiteK, castleRight));
-        assertEquals(false, legalCastleGame.movePiece(square, whiteK, castleLeft));
+        assertEquals(false, game.movePiece(blackKingSquare, blackKing, blackCastleLeft), "Kan ikke castle siden hvit løper angriper feltet kongen passerer");
 
-        int[] square2 = {0,4};
-        int[] move2 = {0,6};
-        Piece blackK = new King('b');
-        assertEquals(false, legalCastleGame.movePiece(square2, blackK, move2));
+        Piece whiteHorse = new Horse('w');
+        int[] square = new int[]{5,2};
+        int[] moveTo = new int[]{3,1};
+        game.movePiece(square, whiteHorse, moveTo);
+
+        assertEquals(false, game.movePiece(whiteKingSquare, whiteKing, whiteCastleLeft), "Kan ikke castle siden svart løper angriper feltet kongen passerer");
     }
 
     @Test
-    void testIllegalCastlingBecauseOfMovedPiece() {
-        ChessGame legalCastleGame =  new ChessGame();
-        char[][] boardChar = new char[][] {{'0','h','b','0','k','0','0','0'}, {'0','p','p','p','0','p','p','r'}, 
-        {'r','0','0','0','0','h','0','p'}, {'p','0','b','0','0','0','0','0'}, {'0','0','0','p','0','B','0','0'}, 
-        {'0','0','0','B','0','H','0','0'}, {'P','P','P','H','0','P','P','P'}, {'R','0','0','0','K','0','0','R'}};
-        legalCastleGame.setBoard(boardChar);
+    @DisplayName("Sjekker ulovlig castling pga kongen er i sjakk")
+    public void testKingInChess() {
+        char[][] boardChar = new char[][] {{'r','0','b','q','k','0','0','r'}, {'p','p','p','p','0','p','p','p'}, 
+        {'0','0','h','0','0','h','0','0'}, {'0','0','0','0','p','0','0','0'}, {'0','b','0','P','P','0','0','0'}, 
+        {'0','0','0','B','0','H','0','0'}, {'P','P','P','0','0','P','P','P'}, {'R','H','B','Q','K','0','0','R'}};
+        game.setBoard(boardChar);
 
-        int[] square = {7,4};
-        int[] castleRight = {7,6};
-        int[] castleLeft = {7,2};
-        Piece whiteK = new King('w');
-        assertEquals(false, legalCastleGame.movePiece(square, whiteK, castleRight));
-        assertEquals(false, legalCastleGame.movePiece(square, whiteK, castleLeft));
-
-        int[] squareB = {0,4};
-        int[] castleRightB = {0,6};
-        int[] castleLeftB = {0,2};
-        Piece blackK = new King('b');
-        assertEquals(false, legalCastleGame.movePiece(squareB, blackK, castleLeftB));
-        assertEquals(false, legalCastleGame.movePiece(squareB, blackK, castleRightB));
+        assertEquals(false, game.movePiece(whiteKingSquare, whiteKing, whiteCastleRight), "Kan ikke castle siden kongen er i sjakk");
     }
 }
