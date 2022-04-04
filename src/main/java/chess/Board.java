@@ -33,7 +33,6 @@ public class Board {
         
     // Lager et startbrett
     private Piece[][] createEmptyBoard(Piece[][] board) {
-
         for (int i = 0; i < 8; i++) {
             if (i == 0) {
                 board[i][0] = new Rook('b');

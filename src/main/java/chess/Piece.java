@@ -6,8 +6,8 @@ import java.util.List;
 
 public class Piece {
     private char color;
-    private boolean hasMoved;
     private boolean jumpable;
+    private boolean hasMoved = false;
     String className = this.getClass().getName();
 
     public Piece(char color) {
@@ -68,7 +68,7 @@ public class Piece {
         throw new UnsupportedOperationException("Not implemented");
     }
 
-    public boolean isInsideBoard(int[] currentSquare, int[] moveTo) {
+    private boolean isInsideBoard(int[] currentSquare, int[] moveTo) {
         if (currentSquare[0]+moveTo[0] >= 0 && currentSquare[0]+moveTo[0] < 8 
         && currentSquare[1]+moveTo[1] >= 0 && currentSquare[1]+moveTo[1] < 8) {
             return true;

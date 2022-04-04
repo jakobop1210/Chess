@@ -11,8 +11,8 @@ public class ChessGame {
     private char nextTurn = 'b';
     private char winner;
     private boolean gameOver;
-    private boolean check = false;
-    private boolean moveWasCastling = false;
+    private boolean check;
+    private boolean moveWasCastling;
     int[][] rookCastlePos;
     
     // Konstruktøren som lager et nytt board og en board klasse
