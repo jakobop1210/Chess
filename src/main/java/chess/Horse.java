@@ -10,7 +10,9 @@ public class Horse extends Piece {
         super.setJumpable(true);
     }
 
+    // Returns all the legal moves for this piece
+    @Override
     public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) {
-        return legalMoves(board, moves, currentSquare);
+        return filterLegalMoves(board, moves, currentSquare);
     }
 }

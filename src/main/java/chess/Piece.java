@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Piece {
+public abstract class Piece {
     private char color;
     private boolean jumpable;
     private boolean hasMoved = false;
@@ -29,7 +29,7 @@ public class Piece {
         return color;
     }
 
-    public boolean isHasMoved() {
+    public boolean hasMoved() {
         return hasMoved;
     }
 
@@ -41,7 +41,8 @@ public class Piece {
         this.jumpable = jumpable;
     }
 
-    public List<List<Integer>> legalMoves(Piece[][] board, int[][] moves, int[] currentSquare) {
+    // Filter out moves that is outside the board or if there is a piece of the same color 
+    public List<List<Integer>> filterLegalMoves(Piece[][] board, int[][] moves, int[] currentSquare) {
         List<List<Integer>> legalMoves = new ArrayList<>();
 
         for (int[] square : moves) {
@@ -64,10 +65,12 @@ public class Piece {
         return legalMoves;
     }
 
-    public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) {
-        throw new UnsupportedOperationException("Not implemented");
-    }
+    public abstract List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board);
+  //public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) {
+  //    throw new UnsupportedOperationException("Not implemented");
+  //}
 
+    // Check if a square is inside the board
     private boolean isInsideBoard(int[] currentSquare, int[] moveTo) {
         if (currentSquare[0]+moveTo[0] >= 0 && currentSquare[0]+moveTo[0] < 8 
         && currentSquare[1]+moveTo[1] >= 0 && currentSquare[1]+moveTo[1] < 8) {

@@ -13,8 +13,9 @@ public class Pawn extends Piece {
         super.setJumpable(true);
     }
 
-    public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) {
-        List<List<Integer>> filteredMoves = new ArrayList<>();
+    // Returns all the legal moves for this piece
+    @Override
+    public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) { 
         List<List<Integer>> legalMoves = new ArrayList<>();
         int infront, twoInfront;
 
@@ -27,7 +28,7 @@ public class Pawn extends Piece {
             infront = -1;
             twoInfront = -2;
         }
-        filteredMoves = legalMoves(board, moves, currentSquare);
+        List<List<Integer>> filteredMoves = filterLegalMoves(board, moves, currentSquare);
 
         for (int i = 0; i < filteredMoves.size(); i++) { 
              if (filteredMoves.get(i).get(1) == 1 + currentSquare[1]) {

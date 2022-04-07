@@ -7,13 +7,14 @@ public class Board {
         this.board = createEmptyBoard(this.board);
     }
 
-    public void setBoard(char[][] charBoard) {
-        for (int i = 0; i < this.board.length; i++) {
-            for (int j = 0; j < this.board[i].length; j++) {
-                this.board[i][j] = createPiece(charBoard[i][j]);
+    public void setBoard(String stringBoard) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                this.board[i][j] = createPiece(stringBoard.charAt(i*8+j));
             }
         }
     }
+
 
     public Piece createPiece(char piece) {
         if (piece == 'P') return new Pawn('w');
@@ -31,7 +32,7 @@ public class Board {
         return null;
     }
         
-    // Lager et startbrett
+    // Creating the startboard
     private Piece[][] createEmptyBoard(Piece[][] board) {
         for (int i = 0; i < 8; i++) {
             if (i == 0) {
@@ -69,23 +70,20 @@ public class Board {
         return board;
     }
 
-    public void printBoard() {
-        System.out.print("{");
+    // Prints the board to the console
+    public String boardString() {
+        String boardString = "";
         for (int i = 0; i < board.length; i++) {
-            System.out.print("{");
             for (int j = 0; j < board[i].length; j++) {
                 if (board[i][j] == null) {
-                    System.out.print("'0',");
+                    boardString += "0";
+                } else if (board[i][j].getColor() == 'w') {
+                        boardString += Character.toString(board[i][j].getName().charAt(6));
                 } else {
-                    if (board[i][j].getColor() == 'w') {
-                        System.out.print("'"+board[i][j].getName().charAt(6)+"',");
-                    } else {
-                        System.out.print("'"+Character.toLowerCase(board[i][j].getName().charAt(6))+"',");
-                    }
+                        boardString += Character.toString(board[i][j].getName().charAt(6)).toLowerCase();
                 }
             }
-            System.out.print("}, ");
         }
-        System.out.print("}");
+        return boardString;
     }
 }

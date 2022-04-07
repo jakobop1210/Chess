@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,6 +20,7 @@ public class King extends Piece {
         return false;
     }
 
+    // Checks if the castling move is legal (not checking for check)
     private List<List<Integer>> IfLegalAddCastle(int[] currentSquare, Piece[][] board, List<List<Integer>> legalMoves, 
                                             int[] direction, int rookPos) {
         boolean spacesBetweenIsEmpty = true;
@@ -32,16 +32,18 @@ public class King extends Piece {
         }
 
         Piece castleRook = board[currentSquare[0]][currentSquare[1]+rookPos];
-        if (spacesBetweenIsEmpty && castleRook != null && !castleRook.isHasMoved()) {
+        if (spacesBetweenIsEmpty && castleRook != null && !castleRook.hasMoved()) {
                 legalMoves.add(Arrays.asList(currentSquare[0], currentSquare[1]+direction[0]));
         }
         return legalMoves;
     }
 
+    // Returns all the legal moves for this piece
+    @Override
     public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) {
-        List<List<Integer>> legalMoves = new ArrayList<>();
-        legalMoves = legalMoves(board, moves, currentSquare);
-        if (!this.isHasMoved()) {
+        List<List<Integer>> legalMoves = filterLegalMoves(board, moves, currentSquare);
+        
+        if (!this.hasMoved()) {
             legalMoves = IfLegalAddCastle(currentSquare, board, legalMoves, castleRight, +3);
             legalMoves = IfLegalAddCastle(currentSquare, board, legalMoves, castleLeft, -4);
         }
