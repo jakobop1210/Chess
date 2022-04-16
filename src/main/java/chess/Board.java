@@ -4,10 +4,15 @@ public class Board {
     private Piece[][] board = new Piece[8][8];
 
     public Board() {
-        this.board = createEmptyBoard(this.board);
+        this.board = createStartBoard(this.board);
+    }
+
+    public Piece[][] getBoard() {
+        return board;
     }
 
     public void setBoard(String stringBoard) {
+        validateBoardString(stringBoard);
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 this.board[i][j] = createPiece(stringBoard.charAt(i*8+j));
@@ -15,8 +20,13 @@ public class Board {
         }
     }
 
+    private void validateBoardString(String str) {
+        if (!str.matches("[RBHQKPrbhqkp0]{64}")) {
+            throw new IllegalArgumentException("Not a valid board string");
+        }
+    }
 
-    public Piece createPiece(char piece) {
+    private Piece createPiece(char piece) {
         if (piece == 'P') return new Pawn('w');
         if (piece == 'R') return new Rook('w');
         if (piece == 'H') return new Horse('w');
@@ -33,7 +43,7 @@ public class Board {
     }
         
     // Creating the startboard
-    private Piece[][] createEmptyBoard(Piece[][] board) {
+    private Piece[][] createStartBoard(Piece[][] board) {
         for (int i = 0; i < 8; i++) {
             if (i == 0) {
                 board[i][0] = new Rook('b');
@@ -63,10 +73,6 @@ public class Board {
                 board[i][7] = new Rook('w');
             }
         }
-        return board;
-    }
-
-    public Piece[][] getBoard() {
         return board;
     }
 

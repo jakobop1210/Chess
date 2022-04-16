@@ -1,7 +1,7 @@
 package chess;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Arrays;
 
 import javafx.fxml.FXML;
@@ -17,71 +17,65 @@ import javafx.scene.layout.Pane;
 
 public class ChessController {
     private ChessGame game;
-    private Piece[][] board; 
     private IGameSaver gameSaver = new GameSaver();
     private ImageView[][] imageViewArr = new ImageView[8][8];
     private Pane[][] paneArr = new Pane[8][8];
     private int[] lastClickedSquare;
-    private int[] lastMoveSquare;
     private int gameCount;
 
     @FXML
-    GridPane squareGrid;
+    private GridPane squareGrid;
 
     @FXML
-    TextField winnerTextField, winningMethod, gameNameInput;
+    private TextField winnerTextField, winningMethod, gameNameInput;
 
     @FXML
-    Pane resultPane, savedGamesPane;
+    private Pane resultPane, savedGamesPane;
 
     @FXML
-    Button extraStartButton;
+    private Button extraStartButton;
 
     @FXML
-    ChoiceBox<String> savedGamesCBox;
+    private ChoiceBox<String> savedGamesCBox;
     
     @FXML
-    public void initialize() {
+    private void initialize() {
         game = new ChessGame();
-        board = game.getBoard();
         resultPane.visibleProperty().set(false);
         extraStartButton.visibleProperty().set(false);
         
         if (gameCount > 0) {
-            setBoardRight();
+            setPiecesToMatchBoard();
         } else {
-            addSavedFiles();
             createImageViewsAndButtons();
+            addSavedFilesToChoiceBox();
         }
         gameCount++;
     }
 
     // Setting all the images to match the board
-    private void setBoardRight() {
+    private void setPiecesToMatchBoard() {
         if (lastClickedSquare != null) setPaneRightColor(lastClickedSquare);
-            for (int i = 0; i < board.length; i++) {
-                for (int j = 0; j < board[i].length; j++) {
-                    setImageUrl(board[i][j], i, j);
-                }
+        for (int i = 0; i < game.getBoard().length; i++) {
+            for (int j = 0; j < game.getBoard()[i].length; j++) {
+                setImageUrl(game.getBoard()[i][j], i, j);
             }
+        }
     }
 
     // Adding pictures of the pieces and invisible buttons to the board
     private void createImageViewsAndButtons() {
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
+        for (int i = 0; i < game.getBoard().length; i++) {
+            for (int j = 0; j < game.getBoard()[i].length; j++) {
                 Pane pane = new Pane();
+                int[] square = new int[]{i, j};
                 paneArr[i][j] = pane;
-                if (i%2 == 0 && j%2 == 1 || i%2 == 1 && j%2 == 0) {
-                    pane.setStyle("-fx-background-color:green");
-                } else {
-                    pane.setStyle("-fx-background-color:#FFFDE7");
-                }
+                setPaneRightColor(square);
                 squareGrid.add(pane, j, i);
 
                 ImageView image = new ImageView();
                 imageViewArr[i][j] = image;
-                setImageUrl(board[i][j], i, j);
+                setImageUrl(game.getBoard()[i][j], i, j);
                 squareGrid.add(image, j, i);
 
                 Button button = createSquareButton(i, j);
@@ -90,7 +84,7 @@ public class ChessController {
         }
     }
 
-    // Creating invivsible buttons which calls on clickedButton when clicked on
+    // Creating the invivsible buttons which calls on clickedButton when clicked on
     private Button createSquareButton(int i, int j) {
         Button button = new Button();
         button.setOpacity(0);
@@ -106,7 +100,7 @@ public class ChessController {
         if (!game.isGameOver()) {
             paneArr[i][j].setStyle("-fx-background-color:#FDFD66");
             if (lastClickedSquare != null) {
-                if (!Arrays.equals(lastClickedSquare, lastMoveSquare)) setPaneRightColor(lastClickedSquare); 
+                if (!Arrays.equals(lastClickedSquare, game.getLastMoveSquare())) setPaneRightColor(lastClickedSquare); 
                 doMove(lastClickedSquare, i, j);
             } 
             lastClickedSquare = new int[]{i,j};
@@ -124,21 +118,21 @@ public class ChessController {
 
     // Executes move if it's legal, if so then updates the images with setImageUrl and calls checkResult()
     private void doMove(int[] lastButtonClickedSquare, int i, int j) {
-        Piece lastPieceClickedOn = board[lastButtonClickedSquare[0]][lastButtonClickedSquare[1]];
+        Piece lastPieceClickedOn = game.getBoard()[lastButtonClickedSquare[0]][lastButtonClickedSquare[1]];
         int[] moveTo = new int[] {i, j};
+        int[] lastMove = game.getLastMoveSquare();
 
         if (lastPieceClickedOn != null) {
             if (game.tryMove(lastButtonClickedSquare, lastPieceClickedOn, moveTo)) {
-                if (lastMoveSquare != null && !Arrays.equals(lastMoveSquare, moveTo)) setPaneRightColor(lastMoveSquare);
-                lastMoveSquare = moveTo;
-                setImageUrl(board[i][j], i, j);
+                if (lastMove != null && !Arrays.equals(lastMove, moveTo)) setPaneRightColor(lastMove);
+                setImageUrl(game.getBoard()[i][j], i, j);
                 setImageUrl(null, lastButtonClickedSquare[0], lastButtonClickedSquare[1]);
 
                 if (game.getMoveWasCastling()) {
                     setImageUrl(new Rook(game.getNextTurn()), game.getRookCastlePos()[1][0], game.getRookCastlePos()[1][1]);
                     setImageUrl(null, game.getRookCastlePos()[0][0], game.getRookCastlePos()[0][1]);
                 }
-                checkResult();
+                if (game.isGameOver()) checkResult();
             } 
         }
     }
@@ -158,31 +152,21 @@ public class ChessController {
 
     // Check the result after a move
     private void checkResult() {
-        if (game.isGameOver()) {
-            resultPane.visibleProperty().set(true);
-            winningMethod.setText("by checkmate");
-            if (game.getWinner() == 'w') {
-                winnerTextField.setText("White won!");
-                System.out.println("Vinneren er hvit!");
-            } else if (game.getWinner() == 'b') {
-                winnerTextField.setText("Black won!");
-                System.out.println("Vinnereren er svart!");
-            } else {
-                winnerTextField.setText("Draw!");
-                winningMethod.setText("by stalemate");
-                System.out.println("Det ble uavgjort");
-            }
-        } else if (game.isCheck()) {
-            if (game.getTurn() == 'w') {
-                System.out.println("Hvit står i sjakk!");
-            } else {
-                System.out.println("Svart står i sjakk!");
-            }
+        resultPane.visibleProperty().set(true);
+        winningMethod.setText("by checkmate");
+        if (game.getWinner() == 'w') {
+            winnerTextField.setText("White won!");
+        } else if (game.getWinner() == 'b') {
+            winnerTextField.setText("Black won!");
+        } else {
+            winnerTextField.setText("Draw!");
+            winningMethod.setText("by stalemate");
         }
     }  
 
     // Is called when white click resign
-    public void whiteResign() {
+    @FXML
+    private void whiteResign() {
         resultPane.visibleProperty().set(true);
         winningMethod.setText("by resignation");
         winnerTextField.setText("Black won!");
@@ -190,19 +174,32 @@ public class ChessController {
     }
 
     // Is called when black click resign
-    public void blackResign() {
+    @FXML
+    private void blackResign() {
         resultPane.visibleProperty().set(true);
         winningMethod.setText("by resignation");
         winnerTextField.setText("White won!");
         System.out.println("Vinnereren er hvit!");
     }
 
-    private void addSavedFiles() {
-        savedGamesCBox.setValue("Choose a game");
-        File path = new File("src/main/resources/chess/savedGames/");
-        File[] fileArr = path.listFiles();
-        for (File file : fileArr) {  
-            savedGamesCBox.getItems().add(file.getName().substring(0, file.getName().length()-4));
+    private void addSavedFilesToChoiceBox() {
+        try {
+            File path = gameSaver.getFileFolderPath().toFile();
+            File[] fileArray = path.listFiles();
+            for (File file : fileArray) {  
+                savedGamesCBox.getItems().add(file.getName().substring(0, file.getName().length()-4));
+            }
+            setChoiceBoxValue();
+        } catch (Exception e) {
+            //TODO: handle exception
+        }
+    }
+
+    private void setChoiceBoxValue() {
+        if (savedGamesCBox.getItems().isEmpty()) {
+            savedGamesCBox.setValue("No games saved yet");
+        } else {
+            savedGamesCBox.setValue("Choose a game");
         }
     }
 
@@ -215,48 +212,60 @@ public class ChessController {
     }
 
     @FXML
-    public void deleteGame() {
-        File deleteFile = new File("src/main/resources/chess/savedGames/" + savedGamesCBox.getValue() + ".txt");
-        deleteFile.delete();
-        savedGamesCBox.getItems().remove(savedGamesCBox.getValue());
+    private void deleteGame() {
+        try {
+            File deleteFile = gameSaver.getFilePath(savedGamesCBox.getValue()).toFile();
+            deleteFile.delete();
+            savedGamesCBox.getItems().remove(savedGamesCBox.getValue());
+            setChoiceBoxValue();
+        } catch (IOException e) {
+            
+        }
     }
 
     
     @FXML 
-    public void handleSave() {
+    private void handleSave() {
         try {
             gameSaver.saveGame(getFilename(), game);
-            if (!savedGamesCBox.getItems().contains(getFilename())) savedGamesCBox.getItems().add(getFilename());
-        } catch (FileNotFoundException e) {
+            if (!savedGamesCBox.getItems().contains(getFilename())) {
+                savedGamesCBox.getItems().add(getFilename()); 
+            }
+            setChoiceBoxValue();
+        } catch (IOException e) {
             
         }
     }
 
     @FXML
-    void handleLoad() {
+    private void handleLoad() {
         try {
-            initialize();
+            if (!savedGamesCBox.getItems().isEmpty()) initialize();
             game = gameSaver.loadGame(savedGamesCBox.getValue());
-            board = game.getBoard();
-            setBoardRight();
+            setPiecesToMatchBoard();
             exitSavedGames();
+            int[] move = game.getLastMoveSquare();
+            if (move != null) paneArr[move[0]][move[1]].setStyle("-fx-background-color:#FDFD66");
             if (game.isGameOver()) extraStartButton.visibleProperty().set(true);
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
 
         }
     }
 
     // When the exit button on the result is clicked
-    public void exitResult() {
+    @FXML
+    private void exitResult() {
         resultPane.visibleProperty().set(false);
         extraStartButton.visibleProperty().set(true);
     }
 
-    public void exitSavedGames() {
+    @FXML
+    private void exitSavedGames() {
         savedGamesPane.visibleProperty().set(false);
     }
 
-    public void showSavedGames() {
+    @FXML
+    private void showSavedGames() {
         savedGamesPane.visibleProperty().set(true);
     }
 }

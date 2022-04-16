@@ -8,7 +8,7 @@ public abstract class Piece {
     private char color;
     private boolean jumpable;
     private boolean hasMoved = false;
-    String className = this.getClass().getName();
+    private final String className = this.getClass().getName();
 
     public Piece(char color) {
         if (color != 'w' && color != 'b') {
@@ -65,7 +65,7 @@ public abstract class Piece {
         return legalMoves;
     }
 
-    public abstract List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board);
+    protected abstract List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board);
   //public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) {
   //    throw new UnsupportedOperationException("Not implemented");
   //}
@@ -78,4 +78,4 @@ public abstract class Piece {
         }
         return false;
     }
-}
+ }

@@ -1,11 +1,15 @@
 package chess;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Path;
 
 public interface IGameSaver {
     
-    void saveGame(String filename, ChessGame game) throws FileNotFoundException;
+    void saveGame(String filename, ChessGame game) throws IOException;
 
-    ChessGame loadGame(String filename) throws FileNotFoundException;
+    ChessGame loadGame(String filename) throws IOException;
 
+    Path getFilePath(String filename) throws IOException;;
+
+    Path getFileFolderPath(); 
 }

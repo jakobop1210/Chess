@@ -13,12 +13,12 @@ public class ChessGame {
     private boolean gameOver;
     private boolean check;
     private boolean moveWasCastling;
+    private int[] lastMoveSquare;
     int[][] rookCastlePos;
     
     public ChessGame() {
-        Board newBoard = new Board();
-        this.boardClass = newBoard;
-        this.board = newBoard.getBoard();
+        this.boardClass = new Board();
+        this.board = boardClass.getBoard();
     }
 
     public Piece[][] getBoard() {
@@ -53,6 +53,10 @@ public class ChessGame {
         return rookCastlePos;
     }
 
+    public int[] getLastMoveSquare() {
+        return lastMoveSquare;
+    }
+
     public String getBoardString() {
         return boardClass.boardString();
     }
@@ -73,14 +77,15 @@ public class ChessGame {
         this.gameOver = gameOver;
     }
 
+    public void setLastMoveSquare(int[] lastMoveSquare) {
+        this.lastMoveSquare = lastMoveSquare;
+    }
+
     // Execute move if it's legal, checks for check and checkmate, checks result
     public boolean tryMove(int[] currentSquare, Piece piece, int[] move) {
-        if (piece.getColor() != turn) {
-            return false;
-        } 
+        if (piece == null) throw new NullPointerException("Not a valid piece");
+        if (piece.getColor() != turn) return false;
         moveWasCastling = false;
-        check = false;
-        if (checkForCheck()) check = true;
 
         List<List<Integer>> legalMoves = piece.findLegalMoves(currentSquare, board);
         legalMoves = filterOutCheckMoves(piece, currentSquare, legalMoves);
@@ -88,12 +93,19 @@ public class ChessGame {
 
         if (legalMoves.contains(movetoList)) {
             if (!doMove(currentSquare, piece, move)) return false;
-            if (checkForCheck() && checkForMate()) {
-                winner = nextTurn;
-                gameOver = true;
+            lastMoveSquare = move;
+            if (checkForCheck()) {
+                check = true;
+                if (checkForMate()) {
+                    winner = nextTurn;
+                    gameOver = true;
+                }
             } else if (checkForMate()) {
                 gameOver = true;
+            } else {
+                check = false;
             }
+            System.out.println(boardClass.boardString());
             return true;
         }
         System.out.println("Brikken kan ikke flytte ditt, prøv et annet trekk!");
@@ -151,8 +163,16 @@ public class ChessGame {
     }
 
     public Piece getKingPiece(char turn) {
-        int[] kingSquare = findKingSquare(turn);
-        return board[kingSquare[0]][kingSquare[1]];
+        if (validColor(turn)) {
+            int[] kingSquare = findKingSquare(turn);
+            return board[kingSquare[0]][kingSquare[1]];
+        }
+        return null;
+    }
+
+    private boolean validColor(char color) {
+        if (color != 'w' && color != 'b') throw new IllegalArgumentException("Not a valid color");
+        return true;
     }
 
     // Filter out illegal moves that leads to check
@@ -252,5 +272,16 @@ public class ChessGame {
 
         moveWasCastling = true;
         rookCastlePos = new int[][]{rookSquare, rookMoveto};
+    }
+
+    public boolean compareLists(List<List<Integer>> actual, List<List<Integer>> test) {
+        boolean equal = true;
+        for (List<Integer> square : actual) {
+            if (!test.contains(square)) {
+                equal = false;
+            }
+        }
+        if (equal && actual.size() == test.size()) return true;
+        return false;
     }
 }

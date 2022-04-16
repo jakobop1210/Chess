@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class King extends Piece {
-    private int[][] moves = {{-1,0}, {-1,1}, {0,1}, {1,1}, {1,0}, {1,-1}, {0,-1}, {-1,-1}};
-    private int[] castleRight = {2,1};
-    private int[] castleLeft = {-2,-1,-3};
+    private final int[][] moves = {{-1,0}, {-1,1}, {0,1}, {1,1}, {1,0}, {1,-1}, {0,-1}, {-1,-1}};
+    private final int[] castleRight = {2,1};
+    private final int[] castleLeft = {-2,-1,-3};
 
     public King(char color) {
         super(color);
@@ -32,8 +32,10 @@ public class King extends Piece {
         }
 
         Piece castleRook = board[currentSquare[0]][currentSquare[1]+rookPos];
-        if (spacesBetweenIsEmpty && castleRook != null && !castleRook.hasMoved()) {
+        if (castleRook != null) {
+            if (spacesBetweenIsEmpty && castleRook.getName() == "chess.Rook" && !castleRook.hasMoved()) {
                 legalMoves.add(Arrays.asList(currentSquare[0], currentSquare[1]+direction[0]));
+            }      
         }
         return legalMoves;
     }

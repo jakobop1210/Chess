@@ -2,101 +2,62 @@ package chess;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class PawnTest {
     private ChessGame game;
-    private Piece whitePawn, blackPawn;
-    private int[] whitePawnSquare, blackPawnSquare;
-
+    List<List<Integer>> expectedMoves;
+    private final Piece whitePawn = new Pawn('w');
+    private final Piece blackPawn = new Pawn('b');
+    
     @BeforeEach
 	public void setUp() {
         game = new ChessGame();
-        whitePawn = new Pawn('w');
-        blackPawn = new Pawn('b');
-        whitePawnSquare = new int[]{6,0};
-        blackPawnSquare = new int[]{1,0};
     }
     
     @Test
-    @DisplayName("Tester lovlige trekk for bonde en fram og ulovlige trekk to fram")
-    public void testMovesForward() {
-        int[] whitePawnMove = new int[]{5,0};
-        assertEquals(true, game.movePiece(whitePawnSquare, whitePawn, whitePawnMove), "Trekket burde være lovlig");
+    @DisplayName("Test that a pawn can move one and two forawrd from start posistion")
+    public void testFindLegalMoves1() {
+        expectedMoves = Arrays.asList(Arrays.asList(5, 4), Arrays.asList(4, 4));
+        int[] currentSquare= new int[]{6, 4};
+        assertEquals(true, game.compareLists(expectedMoves, whitePawn.findLegalMoves(currentSquare, game.getBoard())));
 
-        int[] blackPawnMove = new int[]{2,0};
-        assertEquals(true, game.movePiece(blackPawnSquare, blackPawn, blackPawnMove), "Trekket burde være lovlig");
-
-        whitePawnSquare = whitePawnMove;
-        whitePawnMove = new int[]{3,0};
-        assertEquals(false, game.movePiece(whitePawnSquare, whitePawn, whitePawnMove), "Kan bare gå to fram fra start posisjon");
-        whitePawnMove = new int[]{4,0};
-        assertEquals(true, game.movePiece(whitePawnSquare, whitePawn, whitePawnMove), "Trekket burde være lovlig");
-
-        blackPawnSquare = blackPawnMove;
-        blackPawnMove = new int[]{4,0};
-        assertEquals(false, game.movePiece(blackPawnSquare, blackPawn, blackPawnMove), "Kan bare gå to fram fra start posisjon");
-        blackPawnMove = new int[]{3,0};
-        assertEquals(true, game.movePiece(blackPawnSquare, blackPawn, blackPawnMove), "Trekket burde være lovlig");
+        expectedMoves = Arrays.asList(Arrays.asList(2, 0), Arrays.asList(3, 0));
+        currentSquare = new int[]{1, 0};
+        assertEquals(true, game.compareLists(expectedMoves, blackPawn.findLegalMoves(currentSquare, game.getBoard())));
     }
 
     @Test
-    @DisplayName("Tester lovlige trekk for bonde to fram og brikke som sperrer")
-    public void testMovesForward2() {
-        int[] whitePawnMove = new int[]{4,0};
-        assertEquals(true, game.movePiece(whitePawnSquare, whitePawn, whitePawnMove), "Trekket burde være lovlig");
+    @DisplayName("Test that a pawn can move diagonal when taking a piece")
+    public void testFindLegalMoves2() {
+        String newBoard = "rhbqkbhrp0pppppp0000P00000000000000000000p000000PPPP0PPPRHBQKBHR";
+        game.setBoard(newBoard);
 
-        int[] blackPawnMove = new int[]{3,0};
-        assertEquals(true, game.movePiece(blackPawnSquare, blackPawn, blackPawnMove), "Trekket burde være lovlig");
+        expectedMoves = Arrays.asList(Arrays.asList(1, 5), Arrays.asList(1, 3));
+        int[] currentSquare = new int[]{2, 4};
+        assertEquals(true, game.compareLists(expectedMoves, whitePawn.findLegalMoves(currentSquare, game.getBoard())));
 
-        whitePawnSquare = whitePawnMove;
-        whitePawnMove = new int[]{3,0};
-        assertEquals(false, game.movePiece(whitePawnSquare, whitePawn, whitePawnMove), "Det står en brikke foran");
-
-        blackPawnSquare = blackPawnMove;
-        blackPawnMove = new int[]{4,0};
-        assertEquals(false, game.movePiece(blackPawnSquare, blackPawn, blackPawnMove), "Det står en brikke foran");
+        expectedMoves = Arrays.asList(Arrays.asList(6, 2), Arrays.asList(6, 0));
+        currentSquare = new int[]{5, 1};
+        assertEquals(true, game.compareLists(expectedMoves, blackPawn.findLegalMoves(currentSquare, game.getBoard())));
     }
 
     @Test
-    @DisplayName("Tester lovlige og ulovlige diagonale trekk")
-    public void testDiagonalMoves() {
-        int[] whitePawnMove = new int[]{-1,1};
-        assertEquals(false, game.movePiece(whitePawnSquare, whitePawn, whitePawnMove), "Kan ikke gå ut av brettet");
+    @DisplayName("Test that a pawn cannot take a piece infront")
+    public void testFindLegalMoves3() {
+        String newBoard = "rhbqkbhrpppp0ppp000000000000p0000000P00000000000PPPP0PPPRHBQKBHR";
+        game.setBoard(newBoard);
 
-        int[] blackPawnMove = new int[]{2,1};
-        assertEquals(false, game.movePiece(blackPawnSquare, blackPawn, blackPawnMove), "Kan bare gå på skrå hvis det er en mostanderbrikke der");
+        expectedMoves = Arrays.asList();
+        int[] currentSquare = new int[]{4, 4};
+        assertEquals(expectedMoves, whitePawn.findLegalMoves(currentSquare, game.getBoard()));
 
-        whitePawnSquare = new int[]{6,1};
-        whitePawnMove = new int[]{4,1};
-        game.movePiece(whitePawnSquare, whitePawn, whitePawnMove);
-        blackPawnMove = new int[]{3,0};
-        game.movePiece(blackPawnSquare, blackPawn, blackPawnMove);
-
-        assertEquals(true, game.movePiece(whitePawnMove, whitePawn, blackPawnMove), "Kan gå på skrå hvis det er en mostanderbrikke der");
-    }
-
-    @Test
-    @DisplayName("Tester når bonden går til enden av brettet")
-    public void testPawnBecomeQueen() {
-        char[][] boardChar = new char[][] {{'0','0','0','0','r','0','0','0'}, {'p','0','p','0','0','P','k','p'},
-        {'0','0','p','0','0','0','0','0'}, {'0','0','0','0','H','0','0','0'}, {'0','0','P','0','0','0','0','q'}, 
-        {'0','0','0','0','0','0','0','0'}, {'P','0','P','Q','p','0','P','P'}, {'R','0','0','0','0','0','K','0'}};
-        game.setBoard(boardChar);
-        game.getBoard()[1][6].setHasMoved(true);
-        game.getBoard()[7][6].setHasMoved(true);
-        
-        whitePawnSquare = new int[]{1,5};
-        int[] whitePawnMove = new int[]{0,4};
-        game.movePiece(whitePawnSquare, whitePawn, whitePawnMove);
-        assertEquals("chess.Queen", game.getBoard()[0][4].getName(), "Blir automatisk ny dronning på andre siden av brettet");
-
-        blackPawnSquare = new int[]{6,4};
-        int[] blackPawnMove = new int[]{7,4};
-        game.movePiece(blackPawnSquare, blackPawn, blackPawnMove);
-        assertEquals("chess.Queen", game.getBoard()[7][4].getName(), "Blir automatisk ny dronning på andre siden av brettet");
-
+        currentSquare = new int[]{3, 4};
+        assertEquals(expectedMoves, blackPawn.findLegalMoves(currentSquare, game.getBoard()));
     }
 }

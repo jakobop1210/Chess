@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Pawn extends Piece {
-  private int[][] pawnBMoves = {{1,0}, {2,0}, {1,1}, {1,-1}};
-  private int[][] pawnWMoves = {{-1,0}, {-2,0}, {-1,1}, {-1,-1}};
+  private final int[][] pawnBMoves = {{1,0}, {2,0}, {1,1}, {1,-1}};
+  private final int[][] pawnWMoves = {{-1,0}, {-2,0}, {-1,1}, {-1,-1}};
   private int[][] moves;
     
     public Pawn(char color) {
