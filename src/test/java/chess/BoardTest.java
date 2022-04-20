@@ -41,8 +41,7 @@ public class BoardTest {
 
     @Test
     public void testCreatePiece() {
-        String randomBoard = "r0bqr0k0pppp0ppp00000h00000000B000B0P00000Q00000PPP00PPPR00000K0";
-        boardClass.setBoard(randomBoard);
+        boardClass.setBoard("r0000000000000000000000000000000000000000000000000000000000000K0");
 
         Piece whiteKing = new King('w');
         Piece expectedKing = boardClass.getBoard()[7][6];

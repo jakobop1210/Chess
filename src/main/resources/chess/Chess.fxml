@@ -125,5 +125,49 @@
             <DropShadow />
          </effect>
       </Pane>
+      <Pane fx:id="savedGameFeedbackPane" layoutX="220.0" layoutY="290.0" prefHeight="137.0" prefWidth="380.0" style="-fx-background-color: white;" visible="false">
+         <children>
+            <TextField fx:id="savedGameFeedback" alignment="CENTER" layoutX="6.0" layoutY="39.0" prefHeight="75.0" prefWidth="369.0" style="-fx-background-color: white;" text="There is already a game with that name">
+               <font>
+                  <Font name="Apple Symbols" size="22.0" />
+               </font>
+            </TextField>
+            <Button layoutX="338.0" mnemonicParsing="false" onAction="#exitFeedback" prefHeight="32.0" prefWidth="42.0" style="-fx-background-color: white;" text="x">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Button>
+         </children>
+         <effect>
+            <DropShadow />
+         </effect>
+      </Pane>
+      <Button fx:id="drawButton" layoutX="8.0" layoutY="379.0" mnemonicParsing="false" onAction="#offerDraw" prefHeight="43.0" prefWidth="103.0" style="-fx-background-color: green;" text="Offer draw" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="15.0" />
+         </font>
+      </Button>
+      <Pane fx:id="drawPane" layoutX="220.0" layoutY="290.0" prefHeight="240.0" prefWidth="380.0" style="-fx-background-color: white;" visible="false">
+         <children>
+            <TextField fx:id="winnerTextField2" alignment="CENTER" layoutX="6.0" layoutY="31.0" prefHeight="98.0" prefWidth="369.0" style="-fx-background-color: white;" text="Do you accept draw?">
+               <font>
+                  <Font name="Apple Symbols" size="40.0" />
+               </font>
+            </TextField>
+            <Button layoutX="32.0" layoutY="164.0" mnemonicParsing="false" onAction="#drawAccepted" prefHeight="43.0" prefWidth="147.0" style="-fx-background-color: green;" text="Accept" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Button>
+            <Button layoutX="201.0" layoutY="164.0" mnemonicParsing="false" onAction="#exitDrawPane" prefHeight="43.0" prefWidth="147.0" style="-fx-background-color: red;" text="Decline" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Button>
+         </children>
+         <effect>
+            <DropShadow />
+         </effect>
+      </Pane>
    </children>
 </Pane>

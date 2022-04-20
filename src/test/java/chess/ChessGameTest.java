@@ -19,14 +19,15 @@ public class ChessGameTest {
     @Test
     @DisplayName("Test that board get updated correct when moving pieces")
     public void testUpdateBoard() {
+        game.setBoard("0h00000000000000000000000000000000000000000000000000P000000Q0000");
         game.tryMove(new int[]{6, 4}, new Pawn('w'), new int[]{4, 4});
-        assertEquals(game.getBoardString(), "rhbqkbhrpppppppp00000000000000000000P00000000000PPPP0PPPRHBQKBHR");
+        assertEquals(game.getBoardString(), "0h0000000000000000000000000000000000P0000000000000000000000Q0000");
     
         game.tryMove(new int[]{0, 1}, new Horse('b'), new int[]{2, 2});
-        assertEquals(game.getBoardString(), "r0bqkbhrpppppppp00h00000000000000000P00000000000PPPP0PPPRHBQKBHR");
+        assertEquals(game.getBoardString(), "000000000000000000h00000000000000000P0000000000000000000000Q0000");
     
         game.tryMove(new int[]{7, 3}, new Queen('w'), new int[]{3, 7});
-        assertEquals(game.getBoardString(), "r0bqkbhrpppppppp00h000000000000Q0000P00000000000PPPP0PPPRHB0KBHR");
+        assertEquals(game.getBoardString(), "000000000000000000h000000000000Q0000P000000000000000000000000000");
     }
     
     @Test

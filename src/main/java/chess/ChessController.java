@@ -27,10 +27,10 @@ public class ChessController {
     private GridPane squareGrid;
 
     @FXML
-    private TextField winnerTextField, winningMethod, gameNameInput;
+    private TextField winnerTextField, winningMethod, gameNameInput, savedGameFeedback;
 
     @FXML
-    private Pane resultPane, savedGamesPane;
+    private Pane resultPane, savedGamesPane, savedGameFeedbackPane, drawPane;
 
     @FXML
     private Button extraStartButton;
@@ -41,7 +41,7 @@ public class ChessController {
     @FXML
     private void initialize() {
         game = new ChessGame();
-        resultPane.visibleProperty().set(false);
+        exitResult();
         extraStartButton.visibleProperty().set(false);
         
         if (gameCount > 0) {
@@ -182,6 +182,14 @@ public class ChessController {
         System.out.println("Vinnereren er hvit!");
     }
 
+    @FXML
+    private void drawAccepted() {
+        resultPane.visibleProperty().set(true);
+        drawPane.visibleProperty().set(false);
+        winningMethod.setText("by agreement");
+        winnerTextField.setText("Draw!");
+    }
+
     private void addSavedFilesToChoiceBox() {
         try {
             File path = gameSaver.getFileFolderPath().toFile();
@@ -227,13 +235,18 @@ public class ChessController {
     @FXML 
     private void handleSave() {
         try {
-            gameSaver.saveGame(getFilename(), game);
-            if (!savedGamesCBox.getItems().contains(getFilename())) {
+            savedGameFeedbackPane.visibleProperty().set(true);
+            if (savedGamesCBox.getItems().contains(getFilename())) {
+                savedGameFeedback.setText("There is already a game with that name");
+            } else {
                 savedGamesCBox.getItems().add(getFilename()); 
+                gameSaver.saveGame(getFilename(), game);
+                savedGameFeedback.setText("Your game has been saved");
+                setChoiceBoxValue();
             }
-            setChoiceBoxValue();
         } catch (IOException e) {
-            
+            savedGameFeedbackPane.visibleProperty().set(true);
+            savedGameFeedback.setText("An error occured");    
         }
     }
 
@@ -245,10 +258,12 @@ public class ChessController {
             setPiecesToMatchBoard();
             exitSavedGames();
             int[] move = game.getLastMoveSquare();
+            lastClickedSquare = move;
             if (move != null) paneArr[move[0]][move[1]].setStyle("-fx-background-color:#FDFD66");
             if (game.isGameOver()) extraStartButton.visibleProperty().set(true);
         } catch (IOException e) {
-
+            savedGameFeedbackPane.visibleProperty().set(true);
+            savedGameFeedback.setText("An error occured");
         }
     }
 
@@ -260,8 +275,23 @@ public class ChessController {
     }
 
     @FXML
+    private void exitFeedback() {
+        savedGameFeedbackPane.visibleProperty().set(false);
+    }
+
+    @FXML
     private void exitSavedGames() {
         savedGamesPane.visibleProperty().set(false);
+    }
+
+    @FXML
+    private void offerDraw() {
+        drawPane.visibleProperty().set(true);
+    }
+
+    @FXML
+    private void exitDrawPane() {
+        drawPane.visibleProperty().set(false);
     }
 
     @FXML
