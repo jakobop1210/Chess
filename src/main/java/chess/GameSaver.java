@@ -36,8 +36,7 @@ public class GameSaver implements IGameSaver {
             savedGame.getKingPiece(savedGame.getTurn()).setHasMoved(scanner.nextBoolean());
             savedGame.getKingPiece(savedGame.getNextTurn()).setHasMoved(scanner.nextBoolean());
             if (scanner.hasNextInt()) {
-                int xPosisition = scanner.nextInt();
-                savedGame.setLastMoveSquare(new int[]{xPosisition, scanner.nextInt()});
+                savedGame.setLastMoveSquare(new int[]{scanner.nextInt(), scanner.nextInt()});
             }
         }
         return savedGame;

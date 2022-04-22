@@ -19,15 +19,19 @@ public class ChessGameTest {
     @Test
     @DisplayName("Test that board get updated correct when moving pieces")
     public void testUpdateBoard() {
-        game.setBoard("0h00000000000000000000000000000000000000000000000000P000000Q0000");
-        game.tryMove(new int[]{6, 4}, new Pawn('w'), new int[]{4, 4});
-        assertEquals(game.getBoardString(), "0h0000000000000000000000000000000000P0000000000000000000000Q0000");
+        game.setBoard("0h00000000000000000000000000000000000000000000000000P00000000000");
+        Piece whitePawn = new Pawn('w');
+        whitePawn.setSquare(new int[]{6, 4});
+        game.tryMove(whitePawn, new int[]{4, 4});
+        assertEquals("0h0000000000000000000000000000000000P000000000000000000000000000", game.getBoardString());
     
-        game.tryMove(new int[]{0, 1}, new Horse('b'), new int[]{2, 2});
-        assertEquals(game.getBoardString(), "000000000000000000h00000000000000000P0000000000000000000000Q0000");
+        Piece blackHorse = new Horse('b');
+        blackHorse.setSquare(new int[]{0, 1});
+        game.tryMove(blackHorse, new int[]{2, 2});
+        assertEquals("000000000000000000h00000000000000000P000000000000000000000000000", game.getBoardString());
     
-        game.tryMove(new int[]{7, 3}, new Queen('w'), new int[]{3, 7});
-        assertEquals(game.getBoardString(), "000000000000000000h000000000000Q0000P000000000000000000000000000");
+        game.tryMove(whitePawn, new int[]{3, 4});
+        assertEquals("000000000000000000h000000000P00000000000000000000000000000000000", game.getBoardString());
     }
     
     @Test
@@ -49,30 +53,43 @@ public class ChessGameTest {
     public void testCheckWithRook() {
         game.setBoard("r00000000000000000000000000000000000000000000000000000000000K000");
         game.setTurn('b');
-        game.tryMove(new int[]{0, 0}, new Rook('b'), new int[]{0, 4});
-        assertEquals(game.isCheck(), true, "The king is in check by the black rook");
-        game.tryMove(new int[]{7, 4}, new King('w'), new int[]{7, 5});
-        assertEquals(game.isCheck(), false, "The king moved away so isCheck() should be false");
+        Piece blackRook = new Rook('b');
+        blackRook.setSquare(new int[]{0, 0});
+        Piece whiteKing = new King('w');
+        whiteKing.setSquare(new int[]{7, 4});
+
+        game.tryMove(blackRook, new int[]{0, 4});
+        assertEquals(true, game.isCheck(), "The king is in check by the black rook");
+        game.tryMove(whiteKing, new int[]{7, 5});
+        assertEquals(false, game.isCheck(), "The king moved away so isCheck() should be false");
     }
 
     @Test
     @DisplayName("Test for check with white horse and black king")
     public void testCheckWithHorse() {
         game.setBoard("0000k00000000000000H00000000000000000000000000000000000000000000");
-        game.tryMove(new int[]{3, 3}, new Horse('w'), new int[]{1, 2});
-        assertEquals(game.isCheck(), true, "The king is in check by the white horse");
-        game.tryMove(new int[]{0, 4}, new King('b'), new int[]{1, 3});
-        assertEquals(game.isCheck(), false, "The king moved away so isCheck() should be false");
+        Piece whiteHorse = new Horse('w');
+        whiteHorse.setSquare(new int[]{3, 3});
+        Piece blackKing = new King('b');
+        blackKing.setSquare(new int[]{0, 4});
+
+        game.tryMove(whiteHorse, new int[]{1, 2});
+        assertEquals(true, game.isCheck(), "The king is in check by the white horse");
+        game.tryMove(blackKing, new int[]{1, 3});
+        assertEquals(false, game.isCheck(), "The king moved away so isCheck() should be false");
     }
 
     @Test
     @DisplayName("Test for check with realistic posisiiton")
     public void testCheckWithRealisticPosistion() {
-        assertEquals(game.isCheck(), false, "Should not be check from the start posiion");
+        assertEquals(false, game.isCheck(), "Should not be check from the start posiion");
         game.setBoard("r0bqk00rpppp0ppp00h00h000000p0H00bB0P00000000000PPPP0PPPRHBQK00R");
-        assertEquals(game.isCheck(), false);
-        game.tryMove(new int[]{4, 2}, new Bishop('w'), new int[]{1, 5});
-        assertEquals(game.isCheck(), true, "The black king is in check by the white bishop");
+        assertEquals(false, game.isCheck());
+
+        Piece whiteBishop = new Bishop('w');
+        whiteBishop.setSquare(new int[]{4, 2});
+        game.tryMove(whiteBishop, new int[]{1, 5});
+        assertEquals(true, game.isCheck(), "The black king is in check by the white bishop");
     }
 
     @Test
@@ -80,8 +97,10 @@ public class ChessGameTest {
     public void testSchoolMate() {
         assertEquals(game.isGameOver() && game.isCheck(), false);
         game.setBoard("r0bqkbhrppp000pp00hp00000000p00000B0P00000000Q00PPPP0PPPRHB0K0HR"); 
-        game.tryMove(new int[]{5, 5}, new Queen('w'), new int[]{1, 5});
-        assertEquals(game.isGameOver() && game.isCheck(), true, "Schoolmate");
+        Piece whiteQueen = new Queen('w');
+        whiteQueen.setSquare(new int[]{5, 5});
+        game.tryMove(whiteQueen, new int[]{1, 5});
+        assertEquals(true, game.isGameOver() && game.isCheck(), "Schoolmate");
     }
 
     @Test
@@ -91,8 +110,10 @@ public class ChessGameTest {
         game.setTurn('b');
         game.getKingPiece('w').setHasMoved(true);
         game.getKingPiece('b').setHasMoved(true);
-        game.tryMove(new int[]{6, 5}, new Rook('b'), new int[]{7, 5});
-        assertEquals(game.isCheck(), true, "Black rank mate");
+        Piece blackRook = new Rook('b');
+        blackRook.setSquare(new int[]{6, 5});
+        game.tryMove(blackRook, new int[]{7, 5});
+        assertEquals(true, game.isCheck(), "Black rank mate");
     }
 
     @Test
@@ -101,8 +122,9 @@ public class ChessGameTest {
         game.setBoard("0k0000000P00000000K000000000000000000000000000000000000000000000"); 
         game.getKingPiece('w').setHasMoved(true);
         game.getKingPiece('b').setHasMoved(true);
-        game.tryMove(new int[]{2, 2}, game.getBoard()[2][2], new int[]{2, 1});
+        game.getBoard()[2][2].setSquare(new int[]{2, 2});
+        game.tryMove(game.getBoard()[2][2], new int[]{2, 1});
         assertEquals(game.isCheck() && game.isGameOver(), false, "Not checkmate but stalemate");
-        assertEquals(game.isGameOver(), true, "The posistion is a draw and the game should be over");
+        assertEquals(true, game.isGameOver(), "The posistion is a draw and the game should be over");
     }
 }

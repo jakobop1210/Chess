@@ -16,6 +16,7 @@ public class Board {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 this.board[i][j] = createPiece(stringBoard.charAt(i*8+j));
+                if (board[i][j] != null) this.board[i][j].setSquare(new int[]{i, j});
             }
         }
     }
@@ -44,35 +45,7 @@ public class Board {
         
     // Creating the startboard
     private Piece[][] createStartBoard(Piece[][] board) {
-        for (int i = 0; i < 8; i++) {
-            if (i == 0) {
-                board[i][0] = new Rook('b');
-                board[i][1]= new Horse('b');
-                board[i][2] = new Bishop('b');
-                board[i][3] = new Queen('b');
-                board[i][4]= new King('b');
-                board[i][5] = new Bishop('b');
-                board[i][6] = new Horse('b');
-                board[i][7] = new Rook('b');
-            } else if (i == 1) {
-                for (int j = 0; j < 8; j++) {
-                    board[i][j] = new Pawn('b');
-                }    
-            } else if (i == 6) {
-                for (int j = 0; j < 8; j++) {
-                    board[i][j] = new Pawn('w');
-                }    
-            } else if (i == 7) {
-                board[i][0] = new Rook('w');
-                board[i][1]= new Horse('w');
-                board[i][2] = new Bishop('w');
-                board[i][3] = new Queen('w');
-                board[i][4]= new King('w');
-                board[i][5] = new Bishop('w');
-                board[i][6] = new Horse('w');
-                board[i][7] = new Rook('w');
-            }
-        }
+        setBoard("rhbqkbhrpppppppp00000000000000000000000000000000PPPPPPPPRHBQKBHR");
         return board;
     }
 

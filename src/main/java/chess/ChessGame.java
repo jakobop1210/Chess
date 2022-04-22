@@ -82,52 +82,56 @@ public class ChessGame {
     }
 
     // Execute move if it's legal, checks for check and checkmate, checks result
-    public boolean tryMove(int[] currentSquare, Piece piece, int[] move) {
+    public boolean tryMove(Piece piece, int[] move) {
         if (piece == null) throw new NullPointerException("Not a valid piece");
         if (piece.getColor() != turn) return false;
+        
         moveWasCastling = false;
-
-        List<List<Integer>> legalMoves = piece.findLegalMoves(currentSquare, board);
-        legalMoves = filterOutCheckMoves(piece, currentSquare, legalMoves);
-        List<Integer> movetoList = Arrays.asList(move[0], move[1]);
-
-        if (legalMoves.contains(movetoList)) {
-            if (!doMove(currentSquare, piece, move)) return false;
-            lastMoveSquare = move;
-            if (checkForCheck()) {
-                check = true;
-                if (checkForMate()) {
-                    winner = nextTurn;
-                    gameOver = true;
-                }
-            } else if (checkForMate()) {
-                gameOver = true;
-            } else {
-                check = false;
-            }
-            System.out.println(boardClass.boardString());
+        List<List<Integer>> legalMoves = filterOutCheckMoves(piece, piece.findLegalMoves(board));
+        List<Integer> moveToList = Arrays.asList(move[0], move[1]);
+        
+        if (legalMoves.contains(moveToList)) {
+            if (moveIsIllegal(piece, move)) return false;
+            executeMove(piece, move);
             return true;
         }
         System.out.println("Brikken kan ikke flytte ditt, prøv et annet trekk!");
         return false;
     }
 
-    // Checks if pawn should become queen, if move is castling and if it's legal, updates board and turn
-    private boolean doMove(int[] currentSquare, Piece piece, int[] move) {
+    // Executes the move by updating the board and turn. Also checking for check and checkmate
+    private void executeMove(Piece piece, int[] move) {
         if (piece.getName() == "chess.Pawn" && (move[0] == 0 || move[0] == 7)) { 
             piece = new Queen(piece.getColor());
-        } else if (piece.getName() == "chess.King" && Math.abs(currentSquare[1]-move[1]) == 2) {
-            if (!isCastlePathAttacked(currentSquare, piece, move) || check) {
-                System.out.println("Kongen kan ikke rokere, prøv et annet trekk!");
-                return false;
-            }
-            updateRook(currentSquare, move);
         }
-        Piece[] updatePieces = {null, piece};
+        lastMoveSquare = move;
         piece.setHasMoved(true);
-        updateBoard(updatePieces, currentSquare, move);
+        updateBoard(new Piece[]{null, piece}, move);
         updateTurn();
-        return true;
+        if (checkForCheck()) {
+            check = true;
+            if (checkForMate()) {
+                winner = nextTurn;
+                gameOver = true;
+            }
+        } else if (checkForMate()) {
+            gameOver = true;
+        } else {
+            check = false;
+        }
+        System.out.println(boardClass.boardString());
+    }
+
+    // Checks if move is castling and if it's legal
+    private boolean moveIsIllegal(Piece piece, int[] move) {
+        if (piece.getName() == "chess.King" && Math.abs(piece.getY()-move[1]) == 2) {
+            if (isCastlePathAttacked(piece, move) || check) {
+                System.out.println("Kongen kan ikke rokere, prøv et annet trekk!");
+                return true;
+            }
+            updateRook(piece.getSquare(), move);
+        }
+        return false;
     }
 
     // Updates turn
@@ -142,75 +146,50 @@ public class ChessGame {
     }
 
     // Updates board
-    private void updateBoard(Piece[] pieces, int[] currentSquare, int[] move) {    
-        board[currentSquare[0]][currentSquare[1]] = pieces[0];
+    private void updateBoard(Piece[] pieces, int[] move) {    
+        board[pieces[1].getX()][pieces[1].getY()] = pieces[0];
         board[move[0]][move[1]] = pieces[1];
+        if (pieces[0] != null) pieces[0].setSquare(new int[]{pieces[1].getX(), pieces[1].getY()});
+        if (pieces[1] != null) pieces[1].setSquare(move);
     }
 
-    // Finds the king square for the color turn
-    private int[] findKingSquare(char turn) {
-      int[] kingSquare = new int[2];
-      for (int i = 0; i < board.length; i++) {
-        for (int j = 0; j < board[i].length; j++) {
-            if (board[i][j] != null) {
-                if (board[i][j].getName() == "chess.King" && board[i][j].getColor() == turn) {
-                    kingSquare = new int[]{i,j};
-                  }
-              }
-          }
-      }
-      return kingSquare;
-    }
-
+    // Finds the king with the color turn
     public Piece getKingPiece(char turn) {
-        if (validColor(turn)) {
-            int[] kingSquare = findKingSquare(turn);
-            return board[kingSquare[0]][kingSquare[1]];
-        }
-        return null;
+        if (turn != 'w' && turn != 'b') {
+            throw new IllegalArgumentException("Not a valid color");
+        } 
+        return Arrays.stream(board)
+            .flatMap(row -> Arrays.stream(row)
+            .filter(p -> p != null)
+            .filter(p -> p.getName() == "chess.King" && p.getColor() == turn))
+            .findFirst().
+            orElse(null);
     }
-
-    private boolean validColor(char color) {
-        if (color != 'w' && color != 'b') throw new IllegalArgumentException("Not a valid color");
-        return true;
-    }
-
+            
     // Filter out illegal moves that leads to check
-    private List<List<Integer>> filterOutCheckMoves(Piece piece, int[] currentSquare, List<List<Integer>> moves) {
-        List<List<Integer>> ifCheckMoves = new ArrayList<>();
-        Piece pieceCopy = piece;
-
+    private List<List<Integer>> filterOutCheckMoves(Piece piece, List<List<Integer>> moves) {
+        List<List<Integer>> notCheckMoves = new ArrayList<>();
         for (List<Integer> square : moves) {
+            int[] originalSquare = piece.getSquare();
             int[] moveTo = {square.get(0), square.get(1)};
-            Piece pieceMoveToCopy = board[moveTo[0]][moveTo[1]];
-            Piece[] movePieces = {null, pieceCopy};
-            Piece[] movePiecesBack = {pieceMoveToCopy, pieceCopy};
-
-            updateBoard(movePieces, currentSquare, moveTo);
-            if (checkForCheck() == false) {
-                ifCheckMoves.add(square);
-            }
-            updateBoard(movePiecesBack, moveTo, currentSquare);
+            Piece pieceMoveTo = board[moveTo[0]][moveTo[1]];
+            updateBoard(new Piece[]{null, piece}, moveTo);
+            if (!checkForCheck()) notCheckMoves.add(square);
+            updateBoard(new Piece[]{pieceMoveTo, piece}, originalSquare);
         }
-        return ifCheckMoves;
+        return notCheckMoves;
     }
 
     // Checks for check
     private boolean checkForCheck() {
-        int[] kingSquare = findKingSquare(turn);
-        List<Integer> kingSquareList = Arrays.asList(new Integer[]{kingSquare[0], kingSquare[1]});
-
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
-                if (board[i][j] != null) {
-                    if (board[i][j].getColor() != turn) {
-                        int [] currentSquare = new int[]{i,j};
-                        List<List<Integer>> pieceMoves = board[i][j].findLegalMoves(currentSquare, board);
-                        for (List<Integer> square : pieceMoves) {
-                            if (square.equals(kingSquareList)) {
-                                return true;
-                            }
-                        }
+        if (getKingPiece(turn) != null) {
+            List<Integer> kingSquareList = Arrays.asList(getKingPiece(turn).getX(), getKingPiece(turn).getY());
+            for (Piece[] row : board) for (Piece piece : row) {
+                if (piece != null) {
+                    if (piece.getColor() == nextTurn) {
+                        if (piece.findLegalMoves(board).stream().anyMatch(p -> p.equals(kingSquareList))) {
+                            return true;
+                        }  
                     }
                 }
             }
@@ -220,41 +199,29 @@ public class ChessGame {
 
     // Checks for checkmate
     private boolean checkForMate() {
-        boolean mate = false;
-        List<List<List<Integer>>> allMoves = new ArrayList<>();
-
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board[i].length; j++) {
-                if (board[i][j] != null) {
-                    if (board[i][j].getColor() == turn) {
-                        int[] currentSquare = {i,j};
-                        List<List<Integer>> pieceMoves = board[i][j].findLegalMoves(currentSquare, board);
-                        pieceMoves = filterOutCheckMoves(board[i][j], currentSquare, pieceMoves);
-                        if (!pieceMoves.isEmpty()) {
-                            allMoves.add(pieceMoves);
-                        }
-                    }
+        for (Piece[] row : board) for (Piece piece : row) {
+            if (piece != null) {
+                if (piece.getColor() == turn) {
+                    List<List<Integer>> pieceMoves = piece.findLegalMoves(board);
+                    if (!filterOutCheckMoves(piece, pieceMoves).isEmpty()) return false;
                 }
             }
         }
-        if (allMoves.isEmpty()) {
-            mate = true;
-        }
-        return mate;
+        return true;
     }
 
     // Checks if any pieces is attacking the kings castling path, which will lead to an illegal castling
-    private boolean isCastlePathAttacked(int[] currentSquare, Piece piece, int[] move) {
-        List<List<Integer>> castlePath = new ArrayList<>();
-        castlePath.add(Arrays.asList(currentSquare[0], currentSquare[1]+1));
-        castlePath.add(Arrays.asList(currentSquare[0], currentSquare[1]+2));
-        if (currentSquare[1] > move[1]) {
-            castlePath = Arrays.asList(Arrays.asList(currentSquare[0], currentSquare[1]-1), Arrays.asList(currentSquare[0], currentSquare[1]-2));
+    private boolean isCastlePathAttacked(Piece piece, int[] move) {
+        int pos1 = 1;
+        int pos2 = 2;
+        if (piece.getY() > move[1]) {
+            pos1 = -1;
+            pos2 = -2;
         }
-
-        castlePath = filterOutCheckMoves(piece, currentSquare, castlePath);
-        if (castlePath.size() < 2) return false;
-        return true;
+        if (board[piece.getX()][piece.getY()+pos1] != null || board[piece.getX()][piece.getY()+pos2] != null) {
+            return true;
+        }
+        return false;
     }
    
     // Updates the rook if the castling move is executed 
@@ -265,23 +232,10 @@ public class ChessGame {
             rookPlacementReleativeToKing = -4;
             rookMoveToRealtiveToKing = -1;
         }
-        int[] rookSquare = new int[]{currentSquare[0], currentSquare[1]+rookPlacementReleativeToKing};
+        Piece rook = board[currentSquare[0]][currentSquare[1]+rookPlacementReleativeToKing];
         int[] rookMoveto = new int[]{currentSquare[0], currentSquare[1]+rookMoveToRealtiveToKing};
-        Piece[] updateRook = {null, board[rookSquare[0]][rookSquare[1]]};
-        updateBoard(updateRook, rookSquare, rookMoveto);
-
+        updateBoard(new Piece[]{null, rook}, rookMoveto);
         moveWasCastling = true;
-        rookCastlePos = new int[][]{rookSquare, rookMoveto};
-    }
-
-    public boolean compareLists(List<List<Integer>> actual, List<List<Integer>> test) {
-        boolean equal = true;
-        for (List<Integer> square : actual) {
-            if (!test.contains(square)) {
-                equal = false;
-            }
-        }
-        if (equal && actual.size() == test.size()) return true;
-        return false;
+        rookCastlePos = new int[][]{rook.getSquare(), rookMoveto};
     }
 }

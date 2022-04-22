@@ -123,7 +123,7 @@ public class ChessController {
         int[] lastMove = game.getLastMoveSquare();
 
         if (lastPieceClickedOn != null) {
-            if (game.tryMove(lastButtonClickedSquare, lastPieceClickedOn, moveTo)) {
+            if (game.tryMove(lastPieceClickedOn, moveTo)) {
                 if (lastMove != null && !Arrays.equals(lastMove, moveTo)) setPaneRightColor(lastMove);
                 setImageUrl(game.getBoard()[i][j], i, j);
                 setImageUrl(null, lastButtonClickedSquare[0], lastButtonClickedSquare[1]);

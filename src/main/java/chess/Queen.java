@@ -16,10 +16,10 @@ public class Queen extends Rook {
 
     // Returns all the legal moves for this piece
     @Override
-    public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) {
+    public List<List<Integer>> findLegalMoves(Piece[][] board) {
         List<List<Integer>> legalMoves = new ArrayList<>();
         for (int[][] direction :moves) {
-            List<List<Integer>> filteredMoves = filterLegalMoves(board, direction, currentSquare);
+            List<List<Integer>> filteredMoves = filterLegalMoves(board, direction);
             for (List<Integer> move : filteredMoves) {
                 legalMoves.add(move);
             }

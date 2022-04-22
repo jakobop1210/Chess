@@ -15,7 +15,7 @@ public class Pawn extends Piece {
 
     // Returns all the legal moves for this piece
     @Override
-    public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) { 
+    public List<List<Integer>> findLegalMoves(Piece[][] board) { 
         List<List<Integer>> legalMoves = new ArrayList<>();
         int infront, twoInfront;
 
@@ -28,17 +28,17 @@ public class Pawn extends Piece {
             infront = -1;
             twoInfront = -2;
         }
-        List<List<Integer>> filteredMoves = filterLegalMoves(board, moves, currentSquare);
+        List<List<Integer>> filteredMoves = filterLegalMoves(board, moves);
 
         for (int i = 0; i < filteredMoves.size(); i++) { 
-             if (filteredMoves.get(i).get(1) == 1 + currentSquare[1]) {
-                if (board[currentSquare[0]+infront][currentSquare[1]+1] != null) legalMoves.add(filteredMoves.get(i));
-            } else if (filteredMoves.get(i).get(1) == -1 + currentSquare[1]) {
-                if (board[currentSquare[0]+infront][currentSquare[1]-1] != null) legalMoves.add(filteredMoves.get(i));
-            } else if (filteredMoves.get(i).get(0) == moves[0][0] + currentSquare[0]) {
-                if (board[currentSquare[0]+infront][currentSquare[1]] == null) legalMoves.add(filteredMoves.get(i));
-            } else if (filteredMoves.get(i).get(0) == moves[1][0] + currentSquare[0]) {
-                if (board[currentSquare[0]+twoInfront][currentSquare[1]] == null && (currentSquare[0] == 1 || currentSquare[0] == 6)) legalMoves.add(filteredMoves.get(i));
+             if (filteredMoves.get(i).get(1) == 1 + this.getSquare()[1]) {
+                if (board[this.getSquare()[0]+infront][this.getSquare()[1]+1] != null) legalMoves.add(filteredMoves.get(i));
+            } else if (filteredMoves.get(i).get(1) == -1 + this.getSquare()[1]) {
+                if (board[this.getSquare()[0]+infront][this.getSquare()[1]-1] != null) legalMoves.add(filteredMoves.get(i));
+            } else if (filteredMoves.get(i).get(0) == moves[0][0] + this.getSquare()[0]) {
+                if (board[this.getSquare()[0]+infront][this.getSquare()[1]] == null) legalMoves.add(filteredMoves.get(i));
+            } else if (filteredMoves.get(i).get(0) == moves[1][0] + this.getSquare()[0]) {
+                if (board[this.getSquare()[0]+twoInfront][this.getSquare()[1]] == null && (this.getSquare()[0] == 1 || this.getSquare()[0] == 6)) legalMoves.add(filteredMoves.get(i));
            }
         }
         return legalMoves; 

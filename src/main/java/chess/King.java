@@ -21,20 +21,14 @@ public class King extends Piece {
     }
 
     // Checks if the castling move is legal (not checking for check)
-    private List<List<Integer>> IfLegalAddCastle(int[] currentSquare, Piece[][] board, List<List<Integer>> legalMoves, 
-                                            int[] direction, int rookPos) {
-        boolean spacesBetweenIsEmpty = true;
-        for (int move : direction) {
-            int[] square = new int[]{currentSquare[0], currentSquare[1]+move};
-            if (!isSquareEmpty(square, board)) {
-                spacesBetweenIsEmpty = false;
-            }
-        }
+    private List<List<Integer>> IfLegalAddCastling(Piece[][] board, List<List<Integer>> legalMoves, int[] direction, int rookPos) {
+        boolean spacesBetweenIsNotEmpty = Arrays.stream(direction)
+        .anyMatch(p -> !isSquareEmpty(new int[]{this.getX(), this.getY()+p}, board));
 
-        Piece castleRook = board[currentSquare[0]][currentSquare[1]+rookPos];
+        Piece castleRook = board[this.getX()][this.getY()+rookPos];
         if (castleRook != null) {
-            if (spacesBetweenIsEmpty && castleRook.getName() == "chess.Rook" && !castleRook.hasMoved()) {
-                legalMoves.add(Arrays.asList(currentSquare[0], currentSquare[1]+direction[0]));
+            if (!spacesBetweenIsNotEmpty && castleRook.getName() == "chess.Rook" && !castleRook.hasMoved()) {
+                legalMoves.add(Arrays.asList(this.getX(), this.getY()+direction[0]));
             }      
         }
         return legalMoves;
@@ -42,12 +36,11 @@ public class King extends Piece {
 
     // Returns all the legal moves for this piece
     @Override
-    public List<List<Integer>> findLegalMoves(int[] currentSquare, Piece[][] board) {
-        List<List<Integer>> legalMoves = filterLegalMoves(board, moves, currentSquare);
-        
+    public List<List<Integer>> findLegalMoves( Piece[][] board) {
+        List<List<Integer>> legalMoves = filterLegalMoves(board, moves);
         if (!this.hasMoved()) {
-            legalMoves = IfLegalAddCastle(currentSquare, board, legalMoves, castleRight, +3);
-            legalMoves = IfLegalAddCastle(currentSquare, board, legalMoves, castleLeft, -4);
+            legalMoves = IfLegalAddCastling(board, legalMoves, castleRight, +3);
+            legalMoves = IfLegalAddCastling(board, legalMoves, castleLeft, -4);
         }
         return legalMoves;
     }
