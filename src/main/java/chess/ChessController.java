@@ -55,18 +55,17 @@ public class ChessController {
 
     @FXML 
     private void handleSave() {
+        savedGameFeedbackPane.visibleProperty().set(true);
         try {
-            savedGameFeedbackPane.visibleProperty().set(true);
             if (savedGamesCBox.getItems().contains(getFilename())) {
                 savedGameFeedback.setText("There is already a game with that name");
             } else {
-                savedGamesCBox.getItems().add(getFilename()); 
                 gameSaver.saveGame(getFilename(), game);
+                savedGamesCBox.getItems().add(getFilename()); 
                 savedGameFeedback.setText("Your game has been saved");
                 setChoiceBoxValue();
             }
         } catch (IOException e) {
-            savedGameFeedbackPane.visibleProperty().set(true);
             savedGameFeedback.setText("An error occured");    
         }
     }
@@ -84,7 +83,7 @@ public class ChessController {
             if (game.isGameOver()) extraStartButton.visibleProperty().set(true);
         } catch (IOException e) {
             savedGameFeedbackPane.visibleProperty().set(true);
-            savedGameFeedback.setText("An error occured");
+            savedGameFeedback.setText("An error occured - File not found");
         }
     }
 
@@ -96,7 +95,8 @@ public class ChessController {
             savedGamesCBox.getItems().remove(savedGamesCBox.getValue());
             setChoiceBoxValue();
         } catch (IOException e) {
-            
+            savedGameFeedbackPane.visibleProperty().set(true);
+            savedGameFeedback.setText("Error occured - File not found");
         }
     }
 
@@ -156,6 +156,7 @@ public class ChessController {
     @FXML
     private void showSavedGames() {
         savedGamesPane.visibleProperty().set(true);
+        setChoiceBoxValue();
     }
 
     // Setting all the images to match the board
@@ -271,15 +272,13 @@ public class ChessController {
     }  
 
     private void addSavedFilesToChoiceBox() {
-        try {
-            File path = gameSaver.getFileFolderPath().toFile();
-            File[] fileArray = path.listFiles();
+        File path = gameSaver.getFileFolderPath().toFile();
+        File[] fileArray = path.listFiles();
+        if (fileArray != null) {
             for (File file : fileArray) {  
                 savedGamesCBox.getItems().add(file.getName().substring(0, file.getName().length()-4));
             }
             setChoiceBoxValue();
-        } catch (Exception e) {
-            //TODO: handle exception
         }
     }
 

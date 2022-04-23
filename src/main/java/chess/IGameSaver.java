@@ -9,7 +9,7 @@ public interface IGameSaver {
 
     ChessGame loadGame(String filename) throws IOException;
 
-    Path getFilePath(String filename) throws IOException;;
+    Path getFilePath(String filename) throws IOException;
 
     Path getFileFolderPath(); 
 }
