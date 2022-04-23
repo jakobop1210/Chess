@@ -17,6 +17,50 @@ public class ChessGameTest {
     }
     
     @Test
+    @DisplayName("Test for illegal inputs, and legal/illegal moves")
+    public void testTryMove() {
+        assertThrows(NullPointerException.class, () -> {
+            game.tryMove(null, new int[]{4, 4});
+        }, "Need a valid piece to execute a move");
+        assertThrows(NullPointerException.class, () -> {
+            game.tryMove(new Pawn('w'), new int[]{5, 4});
+        }, "Need a piece with a posistion");
+        Piece whitePawn = new Pawn('w');
+        whitePawn.setSquare(new int[]{6, 4});
+        assertEquals(true, game.tryMove(whitePawn, new int[]{5, 4}), "Should be legal");
+        assertEquals(false, game.tryMove(whitePawn, new int[]{4, 4}), "Not whites turn");
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            game.tryMove(whitePawn, new int[]{-2, 8});
+        }, "Not a valid move, the numbers needs to be between 0 and 7");
+        Piece blackHorse = new Horse('b');
+        blackHorse.setSquare(new int[]{0, 1});
+        assertEquals(true, game.tryMove(blackHorse, new int[]{2, 0}), "Should be legal");
+        assertEquals(false, game.tryMove(whitePawn, new int[]{4, 5}), "Not a legal move");
+    }
+
+    @Test
+    @DisplayName("Test that the move is executed")
+    public void testExecuteMove() {
+        Piece whitePawn = new Pawn('w');
+        whitePawn.setSquare(new int[]{1, 0});
+        game.tryMove(whitePawn, new int[]{0, 1});
+        assertEquals(new Queen('w').getName(), game.getBoard()[0][1].getName(), 
+        "The white pawn should become a queen on row 0");
+        assertEquals(0, game.getLastMoveSquare()[0]);
+        assertEquals(1, game.getLastMoveSquare()[1]);
+        assertEquals('b', game.getTurn());
+        assertEquals('w', game.getNextTurn());
+        assertEquals("rQbqkbhr0ppppppp00000000000000000000000000000000PPPPPPPPRHBQKBHR", game.getBoardString());
+    }
+
+    @Test
+    @DisplayName("Test that the move is executed")
+    public void filterOutCheckMoves() {
+
+    }
+ 
+    @Test
     @DisplayName("Test that board get updated correct when moving pieces")
     public void testUpdateBoard() {
         game.setBoard("0h00000000000000000000000000000000000000000000000000P00000000000");
@@ -126,5 +170,30 @@ public class ChessGameTest {
         game.tryMove(game.getBoard()[2][2], new int[]{2, 1});
         assertEquals(game.isCheck() && game.isGameOver(), false, "Not checkmate but stalemate");
         assertEquals(true, game.isGameOver(), "The posistion is a draw and the game should be over");
+    }
+
+    @Test
+    @DisplayName("Test that the move is executed")
+    public void testIsCastlingPathAttacked() {
+        @Test
+    @DisplayName("Test that the move is executed")
+    public void testCheckForIllegalCastling() {
+        game.setBoard("000000000000000000000000000000000000000000000000000000000000K00R");
+        Piece whiteKing = new King('w');
+        whiteKing.setSquare(new int[]{7, 4});
+        assertEquals(true, game.tryMove(whiteKing, new int[]{7, 6}));
+        game.setBoard("0000q00000000000000000000000000000000000000000000000000R0000K00R");
+        assertEquals(false, game.tryMove(whiteKing, new int[]{7, 2}), 
+        "white king is in check by black queen");
+        game.setBoard("000r000000000000000000000000000000000000000000000000000R0000K00R");
+        assertEquals(false, game.tryMove(whiteKing, new int[]{7, 2}), 
+        "black rook is attacking the castling path");
+    }
+    }
+
+    @Test
+    @DisplayName("Test that the move is executed")
+    public void testUpdateRook() {
+        
     }
 }

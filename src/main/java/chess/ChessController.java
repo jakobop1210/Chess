@@ -73,9 +73,9 @@ public class ChessController {
     @FXML
     private void handleLoad() {
         try {
+            ChessGame newGame = gameSaver.loadGame(savedGamesCBox.getValue());
             if (!savedGamesCBox.getItems().isEmpty()) initialize();
-            game = gameSaver.loadGame(savedGamesCBox.getValue());
-            setPiecesToMatchBoard();
+            game = newGame;
             exitSavedGames();
             int[] move = game.getLastMoveSquare();
             lastClickedSquare = move;

@@ -8,8 +8,8 @@ public abstract class Piece {
     private char color;
     private boolean breakLoopWhenHttingPiece;
     private boolean hasMoved = false;
-    private int x;
-    private int y;
+    private int x = -1;
+    private int y = -1;
     private final String className = this.getClass().getName();
 
     public Piece(char color) {
@@ -44,6 +44,7 @@ public abstract class Piece {
     }
 
     public int[] getSquare() {
+        if (x == -1 || y == -1) return null;
         return new int[]{x, y};
     }
 
@@ -100,7 +101,7 @@ public abstract class Piece {
         return false;
     }
 
-    private boolean isIllegalSquare(int[] square) {
+    public boolean isIllegalSquare(int[] square) {
         return Arrays.stream(square).anyMatch(p -> (p < 0 || p > 7));
     }
 }
