@@ -10,7 +10,7 @@ public class King extends Piece {
 
     public King(char color) {
         super(color);
-        super.setJumpable(true);
+        super.setBreakLoopWhenHttingPiece(false);
     }
 
     private boolean isSquareEmpty(int[] square, Piece[][] board) {

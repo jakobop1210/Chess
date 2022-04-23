@@ -7,7 +7,7 @@ public class Horse extends Piece {
 
     public Horse(char color) {
         super(color);
-        super.setJumpable(true);
+        super.setBreakLoopWhenHttingPiece(false);
     }
 
     // Returns all the legal moves for this piece

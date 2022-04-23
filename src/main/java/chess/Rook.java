@@ -9,7 +9,7 @@ public class Rook extends Piece {
 
     public Rook(char color) {
         super(color);
-        super.setJumpable(false);
+        super.setBreakLoopWhenHttingPiece(true);
     }
 
     // Returns all the legal moves for this piece

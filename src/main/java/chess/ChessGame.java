@@ -14,7 +14,7 @@ public class ChessGame {
     private boolean check;
     private boolean moveWasCastling;
     private int[] lastMoveSquare;
-    int[][] rookCastlePos;
+    int[][] rookCastleSqaures;
     
     public ChessGame() {
         this.boardClass = new Board();
@@ -49,8 +49,8 @@ public class ChessGame {
         return moveWasCastling;
     }
 
-    public int[][] getRookCastlePos() {
-        return rookCastlePos;
+    public int[][] getRookCastleSquares() {
+        return rookCastleSqaures;
     }
 
     public int[] getLastMoveSquare() {
@@ -234,8 +234,8 @@ public class ChessGame {
         }
         Piece rook = board[currentSquare[0]][currentSquare[1]+rookPlacementReleativeToKing];
         int[] rookMoveto = new int[]{currentSquare[0], currentSquare[1]+rookMoveToRealtiveToKing};
-        updateBoard(new Piece[]{null, rook}, rookMoveto);
+        rookCastleSqaures = new int[][]{rook.getSquare(), rookMoveto};
         moveWasCastling = true;
-        rookCastlePos = new int[][]{rook.getSquare(), rookMoveto};
+        updateBoard(new Piece[]{null, rook}, rookMoveto);
     }
 }

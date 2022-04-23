@@ -53,6 +53,111 @@ public class ChessController {
         gameCount++;
     }
 
+    @FXML 
+    private void handleSave() {
+        try {
+            savedGameFeedbackPane.visibleProperty().set(true);
+            if (savedGamesCBox.getItems().contains(getFilename())) {
+                savedGameFeedback.setText("There is already a game with that name");
+            } else {
+                savedGamesCBox.getItems().add(getFilename()); 
+                gameSaver.saveGame(getFilename(), game);
+                savedGameFeedback.setText("Your game has been saved");
+                setChoiceBoxValue();
+            }
+        } catch (IOException e) {
+            savedGameFeedbackPane.visibleProperty().set(true);
+            savedGameFeedback.setText("An error occured");    
+        }
+    }
+
+    @FXML
+    private void handleLoad() {
+        try {
+            if (!savedGamesCBox.getItems().isEmpty()) initialize();
+            game = gameSaver.loadGame(savedGamesCBox.getValue());
+            setPiecesToMatchBoard();
+            exitSavedGames();
+            int[] move = game.getLastMoveSquare();
+            lastClickedSquare = move;
+            if (move != null) paneArr[move[0]][move[1]].setStyle("-fx-background-color:#FDFD66");
+            if (game.isGameOver()) extraStartButton.visibleProperty().set(true);
+        } catch (IOException e) {
+            savedGameFeedbackPane.visibleProperty().set(true);
+            savedGameFeedback.setText("An error occured");
+        }
+    }
+
+    @FXML
+    private void deleteGame() {
+        try {
+            File deleteFile = gameSaver.getFilePath(savedGamesCBox.getValue()).toFile();
+            deleteFile.delete();
+            savedGamesCBox.getItems().remove(savedGamesCBox.getValue());
+            setChoiceBoxValue();
+        } catch (IOException e) {
+            
+        }
+    }
+
+    // Is called when white click resign
+    @FXML
+    private void whiteResign() {
+        resultPane.visibleProperty().set(true);
+        winningMethod.setText("by resignation");
+        winnerTextField.setText("Black won!");
+        System.out.println("Vinnereren er svart!");
+    }
+
+    // Is called when black click resign
+    @FXML
+    private void blackResign() {
+        resultPane.visibleProperty().set(true);
+        winningMethod.setText("by resignation");
+        winnerTextField.setText("White won!");
+        System.out.println("Vinnereren er hvit!");
+    }
+
+    @FXML
+    private void drawAccepted() {
+        resultPane.visibleProperty().set(true);
+        drawPane.visibleProperty().set(false);
+        winningMethod.setText("by agreement");
+        winnerTextField.setText("Draw!");
+    }
+
+    // When the exit button on the result is clicked
+    @FXML
+    private void exitResult() {
+        resultPane.visibleProperty().set(false);
+        extraStartButton.visibleProperty().set(true);
+    }
+
+    @FXML
+    private void exitFeedback() {
+        savedGameFeedbackPane.visibleProperty().set(false);
+    }
+
+    @FXML
+    private void exitSavedGames() {
+        savedGamesPane.visibleProperty().set(false);
+    }
+    
+    @FXML
+    private void exitDrawPane() {
+        drawPane.visibleProperty().set(false);
+    }
+
+    @FXML
+    private void offerDraw() {
+        drawPane.visibleProperty().set(true);
+    }
+
+    @FXML
+    private void showSavedGames() {
+        savedGamesPane.visibleProperty().set(true);
+    }
+
     // Setting all the images to match the board
     private void setPiecesToMatchBoard() {
         if (lastClickedSquare != null) setPaneRightColor(lastClickedSquare);
@@ -129,8 +234,9 @@ public class ChessController {
                 setImageUrl(null, lastButtonClickedSquare[0], lastButtonClickedSquare[1]);
 
                 if (game.getMoveWasCastling()) {
-                    setImageUrl(new Rook(game.getNextTurn()), game.getRookCastlePos()[1][0], game.getRookCastlePos()[1][1]);
-                    setImageUrl(null, game.getRookCastlePos()[0][0], game.getRookCastlePos()[0][1]);
+                    System.out.println("yo");
+                    setImageUrl(null, game.getRookCastleSquares()[0][0], game.getRookCastleSquares()[0][1]);
+                    setImageUrl(new Rook(game.getNextTurn()), game.getRookCastleSquares()[1][0], game.getRookCastleSquares()[1][1]);
                 }
                 if (game.isGameOver()) checkResult();
             } 
@@ -164,32 +270,6 @@ public class ChessController {
         }
     }  
 
-    // Is called when white click resign
-    @FXML
-    private void whiteResign() {
-        resultPane.visibleProperty().set(true);
-        winningMethod.setText("by resignation");
-        winnerTextField.setText("Black won!");
-        System.out.println("Vinnereren er svart!");
-    }
-
-    // Is called when black click resign
-    @FXML
-    private void blackResign() {
-        resultPane.visibleProperty().set(true);
-        winningMethod.setText("by resignation");
-        winnerTextField.setText("White won!");
-        System.out.println("Vinnereren er hvit!");
-    }
-
-    @FXML
-    private void drawAccepted() {
-        resultPane.visibleProperty().set(true);
-        drawPane.visibleProperty().set(false);
-        winningMethod.setText("by agreement");
-        winnerTextField.setText("Draw!");
-    }
-
     private void addSavedFilesToChoiceBox() {
         try {
             File path = gameSaver.getFileFolderPath().toFile();
@@ -203,14 +283,6 @@ public class ChessController {
         }
     }
 
-    private void setChoiceBoxValue() {
-        if (savedGamesCBox.getItems().isEmpty()) {
-            savedGamesCBox.setValue("No games saved yet");
-        } else {
-            savedGamesCBox.setValue("Choose a game");
-        }
-    }
-
     private String getFilename() {
         String filename = this.gameNameInput.getText();
         if (filename.isEmpty()) {
@@ -219,83 +291,11 @@ public class ChessController {
         return filename;
     }
 
-    @FXML
-    private void deleteGame() {
-        try {
-            File deleteFile = gameSaver.getFilePath(savedGamesCBox.getValue()).toFile();
-            deleteFile.delete();
-            savedGamesCBox.getItems().remove(savedGamesCBox.getValue());
-            setChoiceBoxValue();
-        } catch (IOException e) {
-            
+    private void setChoiceBoxValue() {
+        if (savedGamesCBox.getItems().isEmpty()) {
+            savedGamesCBox.setValue("No games saved yet");
+        } else {
+            savedGamesCBox.setValue("Choose a game");
         }
-    }
-
-    
-    @FXML 
-    private void handleSave() {
-        try {
-            savedGameFeedbackPane.visibleProperty().set(true);
-            if (savedGamesCBox.getItems().contains(getFilename())) {
-                savedGameFeedback.setText("There is already a game with that name");
-            } else {
-                savedGamesCBox.getItems().add(getFilename()); 
-                gameSaver.saveGame(getFilename(), game);
-                savedGameFeedback.setText("Your game has been saved");
-                setChoiceBoxValue();
-            }
-        } catch (IOException e) {
-            savedGameFeedbackPane.visibleProperty().set(true);
-            savedGameFeedback.setText("An error occured");    
-        }
-    }
-
-    @FXML
-    private void handleLoad() {
-        try {
-            if (!savedGamesCBox.getItems().isEmpty()) initialize();
-            game = gameSaver.loadGame(savedGamesCBox.getValue());
-            setPiecesToMatchBoard();
-            exitSavedGames();
-            int[] move = game.getLastMoveSquare();
-            lastClickedSquare = move;
-            if (move != null) paneArr[move[0]][move[1]].setStyle("-fx-background-color:#FDFD66");
-            if (game.isGameOver()) extraStartButton.visibleProperty().set(true);
-        } catch (IOException e) {
-            savedGameFeedbackPane.visibleProperty().set(true);
-            savedGameFeedback.setText("An error occured");
-        }
-    }
-
-    // When the exit button on the result is clicked
-    @FXML
-    private void exitResult() {
-        resultPane.visibleProperty().set(false);
-        extraStartButton.visibleProperty().set(true);
-    }
-
-    @FXML
-    private void exitFeedback() {
-        savedGameFeedbackPane.visibleProperty().set(false);
-    }
-
-    @FXML
-    private void exitSavedGames() {
-        savedGamesPane.visibleProperty().set(false);
-    }
-
-    @FXML
-    private void offerDraw() {
-        drawPane.visibleProperty().set(true);
-    }
-
-    @FXML
-    private void exitDrawPane() {
-        drawPane.visibleProperty().set(false);
-    }
-
-    @FXML
-    private void showSavedGames() {
-        savedGamesPane.visibleProperty().set(true);
     }
 }

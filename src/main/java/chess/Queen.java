@@ -11,7 +11,7 @@ public class Queen extends Rook {
 
     public Queen(char color) {
         super(color);
-        super.setJumpable(false);
+        super.setBreakLoopWhenHttingPiece(true);
     }
 
     // Returns all the legal moves for this piece

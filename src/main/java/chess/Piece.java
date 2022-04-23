@@ -6,7 +6,7 @@ import java.util.List;
 
 public abstract class Piece {
     private char color;
-    private boolean jumpable;
+    private boolean breakLoopWhenHttingPiece;
     private boolean hasMoved = false;
     private int x;
     private int y;
@@ -23,8 +23,8 @@ public abstract class Piece {
         return className;
     }
 
-    public boolean isJumpable() {
-        return jumpable;
+    public boolean getBreakLoopWhenHttingPiece() {
+        return breakLoopWhenHttingPiece;
     }
     
     public char getColor() {
@@ -60,8 +60,8 @@ public abstract class Piece {
         this.hasMoved = hasMoved;
     }
 
-    public void setJumpable(boolean jumpable) {
-        this.jumpable = jumpable;
+    public void setBreakLoopWhenHttingPiece(boolean jumpable) {
+        this.breakLoopWhenHttingPiece = jumpable;
     }
 
     // Filter out moves that is outside the board or if there is a piece of the same color 
@@ -77,10 +77,10 @@ public abstract class Piece {
                     if (moveToPiece == null) {
                         legalMoves.add(Arrays.asList(this.getSquare()[0]+square[0], this.getSquare()[1]+square[1]));
                     } else if (this.getColor() == moveToPiece.getColor()) {
-                        if (!this.jumpable) break;
+                        if (this.getBreakLoopWhenHttingPiece()) break;
                     } else {
                         legalMoves.add(Arrays.asList(this.getSquare()[0]+square[0], this.getSquare()[1]+square[1]));
-                        if (moveToPiece.getColor() != '0' && !this.jumpable) {
+                        if (moveToPiece.getColor() != '0' && this.getBreakLoopWhenHttingPiece()) {
                             break;
                         }
                     }
