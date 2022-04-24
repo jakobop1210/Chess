@@ -11,8 +11,17 @@ public class Board {
         return board;
     }
 
+    // Creating the startboard
+    private Piece[][] createStartBoard(Piece[][] board) {
+        setBoard("rhbqkbhrpppppppp00000000000000000000000000000000PPPPPPPPRHBQKBHR");
+        return board;
+    }
+
+    // Creating a nested array board that matches the stringBoard input
     public void setBoard(String stringBoard) {
-        validateBoardString(stringBoard);
+        if (!legalBoardString(stringBoard)) {
+            throw new IllegalArgumentException("Not a valid board string");
+        }
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 this.board[i][j] = createPiece(stringBoard.charAt(i*8+j));
@@ -21,12 +30,15 @@ public class Board {
         }
     }
 
-    private void validateBoardString(String str) {
+    // Checks if the string input is a legal board
+    private boolean legalBoardString(String str) {
         if (!str.matches("[RBHQKPrbhqkp0]{64}")) {
-            throw new IllegalArgumentException("Not a valid board string");
+            return false;
         }
+        return true;
     }
 
+    // Returns the right piece connected to the char input
     private Piece createPiece(char piece) {
         if (piece == 'P') return new Pawn('w');
         if (piece == 'R') return new Rook('w');
@@ -42,14 +54,8 @@ public class Board {
         if (piece == 'k') return new King('b');
         return null;
     }
-        
-    // Creating the startboard
-    private Piece[][] createStartBoard(Piece[][] board) {
-        setBoard("rhbqkbhrpppppppp00000000000000000000000000000000PPPPPPPPRHBQKBHR");
-        return board;
-    }
 
-    // Prints the board to the console
+    // Returns the board in a string version
     public String boardString() {
         String boardString = "";
         for (int i = 0; i < board.length; i++) {

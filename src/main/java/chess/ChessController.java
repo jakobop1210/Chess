@@ -40,10 +40,12 @@ public class ChessController {
     
     @FXML
     private void initialize() {
+        if (gameCount > 0 && game.getLastMoveSquare() != null) {
+            setPaneRightColor(game.getLastMoveSquare());
+        }
         game = new ChessGame();
         exitResult();
         extraStartButton.visibleProperty().set(false);
-        
         if (gameCount > 0) {
             setPiecesToMatchBoard();
         } else {
@@ -76,6 +78,7 @@ public class ChessController {
             ChessGame newGame = gameSaver.loadGame(savedGamesCBox.getValue());
             if (!savedGamesCBox.getItems().isEmpty()) initialize();
             game = newGame;
+            setPiecesToMatchBoard();
             exitSavedGames();
             int[] move = game.getLastMoveSquare();
             lastClickedSquare = move;
@@ -206,8 +209,10 @@ public class ChessController {
         if (!game.isGameOver()) {
             paneArr[i][j].setStyle("-fx-background-color:#FDFD66");
             if (lastClickedSquare != null) {
-                if (!Arrays.equals(lastClickedSquare, game.getLastMoveSquare())) setPaneRightColor(lastClickedSquare); 
-                doMove(lastClickedSquare, i, j);
+                if (!Arrays.equals(lastClickedSquare, game.getLastMoveSquare())) {
+                    setPaneRightColor(lastClickedSquare); 
+                    doMove(lastClickedSquare, i, j);
+                }
             } 
             lastClickedSquare = new int[]{i,j};
         }
@@ -223,24 +228,30 @@ public class ChessController {
     }
 
     // Executes move if it's legal, if so then updates the images with setImageUrl and calls checkResult()
-    private void doMove(int[] lastButtonClickedSquare, int i, int j) {
-        Piece lastPieceClickedOn = game.getBoard()[lastButtonClickedSquare[0]][lastButtonClickedSquare[1]];
+    private void doMove(int[] lastClickedSquare, int i, int j) {
+        Piece lastPieceClickedOn = game.getBoard()[lastClickedSquare[0]][lastClickedSquare[1]];
         int[] moveTo = new int[] {i, j};
         int[] lastMove = game.getLastMoveSquare();
 
         if (lastPieceClickedOn != null) {
-            if (game.tryMove(lastPieceClickedOn, moveTo)) {
-                if (lastMove != null && !Arrays.equals(lastMove, moveTo)) setPaneRightColor(lastMove);
-                setImageUrl(game.getBoard()[i][j], i, j);
-                setImageUrl(null, lastButtonClickedSquare[0], lastButtonClickedSquare[1]);
+            try {
+                if (game.tryMove(lastPieceClickedOn, moveTo)) {
+                    if (lastMove != null && !Arrays.equals(lastMove, moveTo)) {
+                        setPaneRightColor(lastMove);
+                    }
+                    setImageUrl(game.getBoard()[i][j], i, j);
+                    setImageUrl(null, lastClickedSquare[0], lastClickedSquare[1]);
 
-                if (game.getMoveWasCastling()) {
-                    System.out.println("yo");
-                    setImageUrl(null, game.getRookCastleSquares()[0][0], game.getRookCastleSquares()[0][1]);
-                    setImageUrl(new Rook(game.getNextTurn()), game.getRookCastleSquares()[1][0], game.getRookCastleSquares()[1][1]);
-                }
-                if (game.isGameOver()) checkResult();
-            } 
+                    if (game.getMoveWasCastling()) {
+                        System.out.println("yo");
+                        setImageUrl(null, game.getRookCastleSquares()[0][0], game.getRookCastleSquares()[0][1]);
+                        setImageUrl(new Rook(game.getNextTurn()), game.getRookCastleSquares()[1][0], game.getRookCastleSquares()[1][1]);
+                    }
+                    if (game.isGameOver()) checkResult();
+                } 
+            } catch (IllegalArgumentException e) {
+                System.out.println("Not your turn");
+            }
         }
     }
 

@@ -3,6 +3,8 @@ package chess;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.Arrays;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,7 +12,6 @@ import org.junit.jupiter.api.Test;
 public class ChessGameTest {
     private ChessGame game;
     
-
     @BeforeEach
 	public void setUp() {
         game = new ChessGame();
@@ -28,13 +29,17 @@ public class ChessGameTest {
         Piece whitePawn = new Pawn('w');
         whitePawn.setSquare(new int[]{6, 4});
         assertEquals(true, game.tryMove(whitePawn, new int[]{5, 4}), "Should be legal");
-        assertEquals(false, game.tryMove(whitePawn, new int[]{4, 4}), "Not whites turn");
-
+        assertThrows(IllegalArgumentException.class, () -> {
+            game.tryMove(whitePawn, new int[]{4, 4});
+        }, "Not whites turn");
+        game.setTurn('w');
         assertThrows(IllegalArgumentException.class, () -> {
             game.tryMove(whitePawn, new int[]{-2, 8});
         }, "Not a valid move, the numbers needs to be between 0 and 7");
+        
         Piece blackHorse = new Horse('b');
         blackHorse.setSquare(new int[]{0, 1});
+        game.setTurn('b');
         assertEquals(true, game.tryMove(blackHorse, new int[]{2, 0}), "Should be legal");
         assertEquals(false, game.tryMove(whitePawn, new int[]{4, 5}), "Not a legal move");
     }
@@ -47,8 +52,7 @@ public class ChessGameTest {
         game.tryMove(whitePawn, new int[]{0, 1});
         assertEquals(new Queen('w').getName(), game.getBoard()[0][1].getName(), 
         "The white pawn should become a queen on row 0");
-        assertEquals(0, game.getLastMoveSquare()[0]);
-        assertEquals(1, game.getLastMoveSquare()[1]);
+        assertEquals(true, Arrays.equals(new int[]{0, 1}, game.getLastMoveSquare()));
         assertEquals('b', game.getTurn());
         assertEquals('w', game.getNextTurn());
         assertEquals("rQbqkbhr0ppppppp00000000000000000000000000000000PPPPPPPPRHBQKBHR", game.getBoardString());
@@ -56,8 +60,19 @@ public class ChessGameTest {
 
     @Test
     @DisplayName("Test that the move is executed")
-    public void filterOutCheckMoves() {
-
+    public void testFilterOutCheckMoves() {
+        game.setBoard("000000r00000000000000000000000000000000000000000000000000000qB0K");
+        Piece whiteKing = new King('w');
+        Piece whiteBishop = new Bishop('w');
+        whiteKing.setSquare(new int[]{7, 7});
+        whiteBishop.setSquare(new int[]{7, 5});
+        whiteKing.setHasMoved(true);
+        assertEquals(false, game.tryMove(whiteKing, new int[]{6, 6}), 
+        "Cannot move into check from the black rook");
+        assertEquals(false, game.tryMove(whiteBishop, new int[]{6, 6}), 
+        "Moving the bishop will lead to check from the black queen");
+        assertEquals(true, game.tryMove(whiteKing, new int[]{6, 7}), 
+        "The only legal move that will not lead to check");
     }
  
     @Test
@@ -172,10 +187,8 @@ public class ChessGameTest {
         assertEquals(true, game.isGameOver(), "The posistion is a draw and the game should be over");
     }
 
+    
     @Test
-    @DisplayName("Test that the move is executed")
-    public void testIsCastlingPathAttacked() {
-        @Test
     @DisplayName("Test that the move is executed")
     public void testCheckForIllegalCastling() {
         game.setBoard("000000000000000000000000000000000000000000000000000000000000K00R");
@@ -183,17 +196,27 @@ public class ChessGameTest {
         whiteKing.setSquare(new int[]{7, 4});
         assertEquals(true, game.tryMove(whiteKing, new int[]{7, 6}));
         game.setBoard("0000q00000000000000000000000000000000000000000000000000R0000K00R");
+        game.setTurn('w');
         assertEquals(false, game.tryMove(whiteKing, new int[]{7, 2}), 
         "white king is in check by black queen");
         game.setBoard("000r000000000000000000000000000000000000000000000000000R0000K00R");
         assertEquals(false, game.tryMove(whiteKing, new int[]{7, 2}), 
         "black rook is attacking the castling path");
     }
-    }
 
     @Test
     @DisplayName("Test that the move is executed")
     public void testUpdateRook() {
-        
+        game.setBoard("r000k00000000000000000000000000000000000000000000000000000000000");
+        Piece blackKing = new King('b');
+        blackKing.setSquare(new int[]{0, 4});
+        game.setTurn('b');
+        game.tryMove(blackKing, new int[]{0, 2});
+        System.out.println(game.getBoardString());
+        assertEquals("chess.Rook", game.getBoard()[0][3].getName());
+        assertEquals(true, game.getMoveWasCastling());
+        assertEquals(true, Arrays.equals(new int[]{0, 0}, game.getRookCastleSquares()[0]));
+        assertEquals(true, Arrays.equals(new int[]{0, 3}, game.getRookCastleSquares()[1]));
     }
 }
+      

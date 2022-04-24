@@ -5,9 +5,7 @@ import java.util.List;
 
 public class Pawn extends Piece {
     private int[][] moves = {{1,0}, {2,0}, {1,1}, {1,-1}};
-    private final int[][] ifWhitePawn = {{-1,0}, {-2,0}, {-1,1}, {-1,-1}};
-
-
+    private static final int[][] ifWhitePawn = {{-1,0}, {-2,0}, {-1,1}, {-1,-1}};
 
     public Pawn(char color) {
         super(color);

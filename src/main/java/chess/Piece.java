@@ -5,12 +5,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class Piece {
-    private char color;
+    private final String className = this.getClass().getName();
+    private final char color;
     private boolean breakLoopWhenHttingPiece;
     private boolean hasMoved = false;
     private int x = -1;
     private int y = -1;
-    private final String className = this.getClass().getName();
 
     public Piece(char color) {
         if (color != 'w' && color != 'b') {
@@ -68,23 +68,18 @@ public abstract class Piece {
     // Filter out moves that is outside the board or if there is a piece of the same color 
     public List<List<Integer>> filterLegalMoves(Piece[][] board, int[][] moves) {
         List<List<Integer>> legalMoves = new ArrayList<>();
-        if (isIllegalSquare(this.getSquare())) {
-            throw new IllegalArgumentException("A piece can only stand on a square with values between 0 and 7");
-        }
         for (int[] square : moves) {
             if (isInsideBoard(square)) {
-                    Piece moveToPiece = board[this.getSquare()[0]+square[0]][this.getSquare()[1]+square[1]];
+                Piece moveToPiece = board[this.getX()+square[0]][this.getY()+square[1]];
 
-                    if (moveToPiece == null) {
-                        legalMoves.add(Arrays.asList(this.getSquare()[0]+square[0], this.getSquare()[1]+square[1]));
-                    } else if (this.getColor() == moveToPiece.getColor()) {
-                        if (this.getBreakLoopWhenHttingPiece()) break;
-                    } else {
-                        legalMoves.add(Arrays.asList(this.getSquare()[0]+square[0], this.getSquare()[1]+square[1]));
-                        if (moveToPiece.getColor() != '0' && this.getBreakLoopWhenHttingPiece()) {
-                            break;
-                        }
-                    }
+                if (moveToPiece == null) {
+                    legalMoves.add(Arrays.asList(this.getX()+square[0], this.getY()+square[1]));
+                } else if (this.getColor() == moveToPiece.getColor()) {
+                    if (this.getBreakLoopWhenHttingPiece()) break;
+                } else {
+                    legalMoves.add(Arrays.asList(this.getX()+square[0], this.getY()+square[1]));
+                    if (this.getBreakLoopWhenHttingPiece()) break;    
+                }
             }
         }
         return legalMoves;

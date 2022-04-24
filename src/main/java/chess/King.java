@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class King extends Piece {
-    private final int[][] moves = {{-1,0}, {-1,1}, {0,1}, {1,1}, {1,0}, {1,-1}, {0,-1}, {-1,-1}};
-    private final int[] castleRight = {2,1};
-    private final int[] castleLeft = {-2,-1,-3};
+    private final static int[][] moves = {{-1,0}, {-1,1}, {0,1}, {1,1}, {1,0}, {1,-1}, {0,-1}, {-1,-1}};
+    private final static int[] castleRight = {2,1};
+    private final static int[] castleLeft = {-2,-3,-1};
 
     public King(char color) {
         super(color);
@@ -20,11 +20,9 @@ public class King extends Piece {
         return false;
     }
 
-    // Checks if the castling move is legal (not checking for check)
+    // Checks if the castling move is legal (not checking for check and if the castling path is attacked)
     private List<List<Integer>> IfLegalAddCastling(Piece[][] board, List<List<Integer>> legalMoves, int[] direction, int rookPos) {
-        boolean spacesBetweenIsNotEmpty = Arrays.stream(direction)
-        .anyMatch(p -> !isSquareEmpty(new int[]{this.getX(), this.getY()+p}, board));
-
+        boolean spacesBetweenIsNotEmpty = Arrays.stream(direction).anyMatch(p -> !isSquareEmpty(new int[]{this.getX(), this.getY()+p}, board));
         Piece castleRook = board[this.getX()][this.getY()+rookPos];
         if (castleRook != null) {
             if (!spacesBetweenIsNotEmpty && castleRook.getName() == "chess.Rook" && !castleRook.hasMoved()) {

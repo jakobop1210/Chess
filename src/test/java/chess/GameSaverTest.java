@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class GameSaverTest {
+    private static 
 
     @BeforeEach
 	public void setUp() {

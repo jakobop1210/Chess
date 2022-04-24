@@ -81,11 +81,11 @@ public class ChessGame {
         this.lastMoveSquare = lastMoveSquare;
     }
 
-    // Execute move if it's legal, checks for check and checkmate, checks result
+    // Checks for invalid input, and if move is legal calls executeMove
     public boolean tryMove(Piece piece, int[] move) {
         if (piece == null || piece.getSquare() == null) throw new NullPointerException("Not a valid piece");
         if (piece.isIllegalSquare(move)) throw new IllegalArgumentException("Not a valid move");
-        if (piece.getColor() != turn) return false;
+        if (piece.getColor() != turn) throw new IllegalArgumentException("Not that color's turn");
         
         moveWasCastling = false;
         List<List<Integer>> legalMoves = filterOutCheckMoves(piece, piece.findLegalMoves(board));
@@ -100,7 +100,7 @@ public class ChessGame {
         return false;
     }
 
-    // Executes the move by updating the board and turn. Also checking for check and checkmate
+    // Executes the move by updating the board and turn. Also checking for check, checkmate and draw
     private void executeMove(Piece piece, int[] move) {
         if (piece.getName() == "chess.Pawn" && (move[0] == 0 || move[0] == 7)) { 
             int[] square = piece.getSquare();
@@ -113,11 +113,11 @@ public class ChessGame {
         updateTurn();
         if (checkForCheck()) {
             check = true;
-            if (checkForMate()) {
+            if (!checkForAnyLegalMoves()) {
                 winner = nextTurn;
                 gameOver = true;
             }
-        } else if (checkForMate()) {
+        } else if (!checkForAnyLegalMoves()) {
             gameOver = true;
         } else {
             check = false;
@@ -165,7 +165,9 @@ public class ChessGame {
             int[] moveTo = {square.get(0), square.get(1)};
             Piece pieceMoveTo = board[moveTo[0]][moveTo[1]];
             updateBoard(new Piece[]{null, piece}, piece.getSquare(), moveTo);
-            if (!checkForCheck()) notCheckMoves.add(square);
+            if (!checkForCheck()) {
+                notCheckMoves.add(square);
+            }
             updateBoard(new Piece[]{pieceMoveTo, piece}, piece.getSquare(), originalSquare);
         }
         return notCheckMoves;
@@ -177,7 +179,7 @@ public class ChessGame {
             List<Integer> kingSquareList = Arrays.asList(getKingPiece(turn).getX(), getKingPiece(turn).getY());
             for (Piece[] row : board) for (Piece piece : row) {
                 if (piece != null) {
-                    if (piece.getColor() == nextTurn) {
+                    if (piece.getColor() != turn) {
                         if (piece.findLegalMoves(board).stream().anyMatch(p -> p.equals(kingSquareList))) {
                             return true;
                         }  
@@ -188,20 +190,20 @@ public class ChessGame {
         return false;  
     }
 
-    // Checks for checkmate
-    private boolean checkForMate() {
+    // Checks if the color turn has any legal moves
+    private boolean checkForAnyLegalMoves() {
         for (Piece[] row : board) for (Piece piece : row) {
             if (piece != null) {
                 if (piece.getColor() == turn) {
                     List<List<Integer>> pieceMoves = piece.findLegalMoves(board);
-                    if (!filterOutCheckMoves(piece, pieceMoves).isEmpty()) return false;
+                    if (!filterOutCheckMoves(piece, pieceMoves).isEmpty()) return true;
                 }
             }
         }
-        return true;
+        return false;
     }
 
-    // Checks if move is castling and if it's legal
+    // If move is castling, checks if caslting path is attacked or check is true
     private boolean checkForIllegalCastling(Piece piece, int[] move) {
         if (piece.getName() == "chess.King" && Math.abs(piece.getY()-move[1]) == 2) {
             int pos1 = 1;
@@ -217,6 +219,7 @@ public class ChessGame {
                 System.out.println("Kongen kan ikke rokere, prøv et annet trekk!");
                 return true;
             }
+            moveWasCastling = true;
             updateRook(piece.getSquare(), move);
         }
         return false;
@@ -233,7 +236,6 @@ public class ChessGame {
         Piece rook = board[currentSquare[0]][currentSquare[1]+rookPlacementReleativeToKing];
         int[] rookMoveto = new int[]{currentSquare[0], currentSquare[1]+rookMoveToRealtiveToKing};
         rookCastleSqaures = new int[][]{rook.getSquare(), rookMoveto};
-        moveWasCastling = true;
         updateBoard(new Piece[]{null, rook}, rook.getSquare(), rookMoveto);
     }
 }
