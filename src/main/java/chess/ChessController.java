@@ -236,14 +236,10 @@ public class ChessController {
         if (lastPieceClickedOn != null) {
             try {
                 if (game.tryMove(lastPieceClickedOn, moveTo)) {
-                    if (lastMove != null && !Arrays.equals(lastMove, moveTo)) {
-                        setPaneRightColor(lastMove);
-                    }
+                    if (lastMove != null && !Arrays.equals(lastMove, moveTo)) setPaneRightColor(lastMove);
                     setImageUrl(game.getBoard()[i][j], i, j);
                     setImageUrl(null, lastClickedSquare[0], lastClickedSquare[1]);
-
                     if (game.getMoveWasCastling()) {
-                        System.out.println("yo");
                         setImageUrl(null, game.getRookCastleSquares()[0][0], game.getRookCastleSquares()[0][1]);
                         setImageUrl(new Rook(game.getNextTurn()), game.getRookCastleSquares()[1][0], game.getRookCastleSquares()[1][1]);
                     }

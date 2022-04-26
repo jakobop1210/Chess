@@ -65,6 +65,8 @@ public abstract class Piece {
         this.breakLoopWhenHttingPiece = jumpable;
     }
 
+    protected abstract List<List<Integer>> findLegalMoves(Piece[][] board);
+
     // Filter out moves that is outside the board or if there is a piece of the same color 
     public List<List<Integer>> filterLegalMoves(Piece[][] board, int[][] moves) {
         List<List<Integer>> legalMoves = new ArrayList<>();
@@ -84,8 +86,6 @@ public abstract class Piece {
         }
         return legalMoves;
     }
-
-    protected abstract List<List<Integer>> findLegalMoves(Piece[][] board);
   
     // Check if a square is inside the board
     private boolean isInsideBoard(int[] moveTo) {

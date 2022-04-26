@@ -26,6 +26,7 @@ public class ChessGameTest {
         assertThrows(NullPointerException.class, () -> {
             game.tryMove(new Pawn('w'), new int[]{5, 4});
         }, "Need a piece with a posistion");
+
         Piece whitePawn = new Pawn('w');
         whitePawn.setSquare(new int[]{6, 4});
         assertEquals(true, game.tryMove(whitePawn, new int[]{5, 4}), "Should be legal");
@@ -76,7 +77,7 @@ public class ChessGameTest {
     }
  
     @Test
-    @DisplayName("Test that board get updated correct when moving pieces")
+    @DisplayName("Test that board get updated correct when moving a piece")
     public void testUpdateBoard() {
         game.setBoard("0h00000000000000000000000000000000000000000000000000P00000000000");
         Piece whitePawn = new Pawn('w');
@@ -96,15 +97,14 @@ public class ChessGameTest {
     @Test
     @DisplayName("Test that the corret king piece is found")
     public void testFindCorrectKing() {
-        assertEquals(game.getKingPiece('w').getClass(), new King('w').getClass());
-        assertEquals(game.getKingPiece('b').getClass(), new King('b').getClass());
-    
-        assertThrows(IllegalArgumentException.class, () -> {
-            game.getKingPiece('0');
-        }, "Cannot create a piece with color 0");
         assertThrows(IllegalArgumentException.class, () -> {
             game.getKingPiece('s');
-        }, "Cannot create a piece with color s");
+        }, "Cannot find a king with color s");
+        assertEquals(game.getKingPiece('w').getName(), new King('w').getName());
+        assertEquals(game.getKingPiece('b').getName(), new King('b').getName());
+        game.setBoard("0000000000000000000000000000000000000000000000000000000000000000");
+        assertEquals(game.getKingPiece('w'), null);
+        assertEquals(game.getKingPiece('b'), null);
     }
     
     @Test
@@ -116,7 +116,6 @@ public class ChessGameTest {
         blackRook.setSquare(new int[]{0, 0});
         Piece whiteKing = new King('w');
         whiteKing.setSquare(new int[]{7, 4});
-
         game.tryMove(blackRook, new int[]{0, 4});
         assertEquals(true, game.isCheck(), "The king is in check by the black rook");
         game.tryMove(whiteKing, new int[]{7, 5});
@@ -131,7 +130,6 @@ public class ChessGameTest {
         whiteHorse.setSquare(new int[]{3, 3});
         Piece blackKing = new King('b');
         blackKing.setSquare(new int[]{0, 4});
-
         game.tryMove(whiteHorse, new int[]{1, 2});
         assertEquals(true, game.isCheck(), "The king is in check by the white horse");
         game.tryMove(blackKing, new int[]{1, 3});
@@ -144,7 +142,6 @@ public class ChessGameTest {
         assertEquals(false, game.isCheck(), "Should not be check from the start posiion");
         game.setBoard("r0bqk00rpppp0ppp00h00h000000p0H00bB0P00000000000PPPP0PPPRHBQK00R");
         assertEquals(false, game.isCheck());
-
         Piece whiteBishop = new Bishop('w');
         whiteBishop.setSquare(new int[]{4, 2});
         game.tryMove(whiteBishop, new int[]{1, 5});
@@ -195,10 +192,12 @@ public class ChessGameTest {
         Piece whiteKing = new King('w');
         whiteKing.setSquare(new int[]{7, 4});
         assertEquals(true, game.tryMove(whiteKing, new int[]{7, 6}));
+
         game.setBoard("0000q00000000000000000000000000000000000000000000000000R0000K00R");
         game.setTurn('w');
         assertEquals(false, game.tryMove(whiteKing, new int[]{7, 2}), 
         "white king is in check by black queen");
+
         game.setBoard("000r000000000000000000000000000000000000000000000000000R0000K00R");
         assertEquals(false, game.tryMove(whiteKing, new int[]{7, 2}), 
         "black rook is attacking the castling path");
@@ -212,7 +211,6 @@ public class ChessGameTest {
         blackKing.setSquare(new int[]{0, 4});
         game.setTurn('b');
         game.tryMove(blackKing, new int[]{0, 2});
-        System.out.println(game.getBoardString());
         assertEquals("chess.Rook", game.getBoard()[0][3].getName());
         assertEquals(true, game.getMoveWasCastling());
         assertEquals(true, Arrays.equals(new int[]{0, 0}, game.getRookCastleSquares()[0]));
