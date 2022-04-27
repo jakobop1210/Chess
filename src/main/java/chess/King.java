@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class King extends Piece {
-    private final static int[][] moves = {{-1,0}, {-1,1}, {0,1}, {1,1}, {1,0}, {1,-1}, {0,-1}, {-1,-1}};
-    private final static int[] castleRight = {2,1};
-    private final static int[] castleLeft = {-2,-3,-1};
+    private final int[][] moves = {{-1,0}, {-1,1}, {0,1}, {1,1}, {1,0}, {1,-1}, {0,-1}, {-1,-1}};
+    private final int[] castleRight = {2,1};
+    private final int[] castleLeft = {-2,-3,-1};
 
     public King(char color) {
         super(color);

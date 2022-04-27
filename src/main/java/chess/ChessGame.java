@@ -84,7 +84,7 @@ public class ChessGame {
     // Checks for invalid input, and if move is legal calls executeMove
     public boolean tryMove(Piece piece, int[] move) {
         if (piece == null || piece.getSquare() == null) throw new NullPointerException("Not a valid piece");
-        if (piece.isIllegalSquare(move)) throw new IllegalArgumentException("Not a valid move");
+        if (Piece.isIllegalSquare(move)) throw new IllegalArgumentException("Not a valid move");
         if (piece.getColor() != turn) throw new IllegalArgumentException("Not that color's turn");
         
         moveWasCastling = false;

@@ -13,6 +13,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 
 
 public class ChessController {
@@ -27,13 +28,16 @@ public class ChessController {
     private GridPane squareGrid;
 
     @FXML
-    private TextField winnerTextField, winningMethod, gameNameInput, savedGameFeedback;
+    private Text winnerTextField, winningMethod, savedGameFeedback;
+
+    @FXML
+    private TextField gameNameInput;
 
     @FXML
     private Pane resultPane, savedGamesPane, savedGameFeedbackPane, drawPane;
 
     @FXML
-    private Button extraStartButton;
+    private Button extraStartButton, whiteResignButton, blackResignButton, offerDrawButton;
 
     @FXML
     private ChoiceBox<String> savedGamesCBox;
@@ -47,6 +51,7 @@ public class ChessController {
         exitResult();
         extraStartButton.visibleProperty().set(false);
         if (gameCount > 0) {
+            enableButtons();
             setPiecesToMatchBoard();
         } else {
             createImageViewsAndButtons();
@@ -61,6 +66,8 @@ public class ChessController {
         try {
             if (savedGamesCBox.getItems().contains(getFilename())) {
                 savedGameFeedback.setText("There is already a game with that name");
+            } else if (getFilename().length() == 0) {
+                savedGameFeedback.setText("Need to give the game a name");
             } else {
                 gameSaver.saveGame(getFilename(), game);
                 savedGamesCBox.getItems().add(getFilename()); 
@@ -106,30 +113,27 @@ public class ChessController {
     // Is called when white click resign
     @FXML
     private void whiteResign() {
-        resultPane.visibleProperty().set(true);
         winningMethod.setText("by resignation");
         winnerTextField.setText("Black won!");
-        System.out.println("Vinnereren er svart!");
+        whenGameIsOver();
     }
 
     // Is called when black click resign
     @FXML
     private void blackResign() {
-        resultPane.visibleProperty().set(true);
         winningMethod.setText("by resignation");
         winnerTextField.setText("White won!");
-        System.out.println("Vinnereren er hvit!");
+        whenGameIsOver();
     }
 
     @FXML
     private void drawAccepted() {
-        resultPane.visibleProperty().set(true);
         drawPane.visibleProperty().set(false);
         winningMethod.setText("by agreement");
         winnerTextField.setText("Draw!");
+        whenGameIsOver();
     }
 
-    // When the exit button on the result is clicked
     @FXML
     private void exitResult() {
         resultPane.visibleProperty().set(false);
@@ -144,22 +148,44 @@ public class ChessController {
     @FXML
     private void exitSavedGames() {
         savedGamesPane.visibleProperty().set(false);
+        enableButtons();
     }
     
     @FXML
     private void exitDrawPane() {
         drawPane.visibleProperty().set(false);
+        enableButtons();
     }
 
     @FXML
     private void offerDraw() {
         drawPane.visibleProperty().set(true);
+        disableButtons();
     }
 
     @FXML
     private void showSavedGames() {
         savedGamesPane.visibleProperty().set(true);
         setChoiceBoxValue();
+        disableButtons();
+    }
+
+    private void whenGameIsOver() {
+        resultPane.visibleProperty().set(true);
+        game.setGameOver(true);
+        disableButtons();
+    }
+
+    private void disableButtons() {
+        whiteResignButton.setDisable(true);
+        blackResignButton.setDisable(true);
+        offerDrawButton.setDisable(true);
+    }
+   
+    private void enableButtons() {
+        whiteResignButton.setDisable(false);
+        blackResignButton.setDisable(false);
+        offerDrawButton.setDisable(false);
     }
 
     // Setting all the images to match the board
@@ -266,7 +292,7 @@ public class ChessController {
 
     // Check the result after a move
     private void checkResult() {
-        resultPane.visibleProperty().set(true);
+        whenGameIsOver();
         winningMethod.setText("by checkmate");
         if (game.getWinner() == 'w') {
             winnerTextField.setText("White won!");

@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 public class HorseTest {
     private ChessGame game;
     private List<List<Integer>> expectedMoves;
-    private List<List<Integer>> actualMoves;
     private final Piece whiteHorse = new Horse('w');;
     private final Piece blackHorse = new Horse('b');
     

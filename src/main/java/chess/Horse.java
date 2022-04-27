@@ -3,7 +3,7 @@ package chess;
 import java.util.List;
 
 public class Horse extends Piece {
-    private static final int moves[][] = {{2,1}, {2,-1}, {1,2}, {1,-2}, {-2,1}, {-2,-1}, {-1,2}, {-1,-2}};
+    private final int moves[][] = {{2,1}, {2,-1}, {1,2}, {1,-2}, {-2,1}, {-2,-1}, {-1,2}, {-1,-2}};
 
     public Horse(char color) {
         super(color);

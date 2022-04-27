@@ -96,7 +96,7 @@ public abstract class Piece {
         return false;
     }
 
-    public boolean isIllegalSquare(int[] square) {
+    public static boolean isIllegalSquare(int[] square) {
         return Arrays.stream(square).anyMatch(p -> (p < 0 || p > 7));
     }
 }
