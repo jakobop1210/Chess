@@ -1,5 +1,6 @@
 package chess;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
@@ -11,7 +12,7 @@ public class GameSaver implements IGameSaver {
     @Override
     public void saveGame(String filename, ChessGame game) throws IOException {
         Files.createDirectories(getFileFolderPath());
-        try (PrintWriter writer = new PrintWriter(getFilePath(filename).toFile())) {
+        try (PrintWriter writer = new PrintWriter(getGameFile(filename))) {
             writer.println(game.getBoardString());
 			writer.println(game.getTurn());
 			writer.println(game.getNextTurn());
@@ -28,7 +29,7 @@ public class GameSaver implements IGameSaver {
     @Override
     public ChessGame loadGame(String filename) throws IOException {
         ChessGame savedGame = new ChessGame();
-        try (Scanner scanner = new Scanner(getFilePath(filename).toFile())) {
+        try (Scanner scanner = new Scanner(getGameFile(filename))) {
             savedGame.setBoard(scanner.nextLine());
             savedGame.setTurn(scanner.next().charAt(0));
             savedGame.setNextTurn(scanner.next().charAt(0));
@@ -43,8 +44,8 @@ public class GameSaver implements IGameSaver {
     }
 
     @Override
-    public Path getFilePath(String filename) {
-        return getFileFolderPath().resolve(filename + ".txt");
+    public File getGameFile(String filename) {
+        return getFileFolderPath().resolve(filename + ".txt").toFile();
     }   
 
     @Override

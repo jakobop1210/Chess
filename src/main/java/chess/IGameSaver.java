@@ -1,5 +1,6 @@
 package chess;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -9,7 +10,7 @@ public interface IGameSaver {
 
     ChessGame loadGame(String filename) throws IOException;
 
-    Path getFilePath(String filename);
+    File getGameFile(String filename);
 
     Path getFileFolderPath(); 
 }

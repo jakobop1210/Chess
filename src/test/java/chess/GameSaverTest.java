@@ -25,7 +25,7 @@ public class GameSaverTest {
         true
         5
         2
-        """;
+        """.replaceAll("\\R", System.getProperty("line.separator"));
 
     private static final String invalidGameContent = """
         r0bqkb0rppp00ppp00h00h000B0000P00000H00H00PPPP0P
@@ -36,7 +36,7 @@ public class GameSaverTest {
         true
         -1
         10
-        """;
+        """.replaceAll("\\R", System.getProperty("line.separator"));
 
     private IGameSaver getGameSaver() {
         return new GameSaver();
@@ -54,15 +54,15 @@ public class GameSaverTest {
 
     @BeforeAll
     public void setup() throws IOException {
-        Files.write(getGameSaver().getFilePath("test_game"), testGameContent.getBytes());
-        Files.write(getGameSaver().getFilePath("invalid_file"), invalidGameContent.getBytes());
+        Files.write(getGameSaver().getGameFile("test_game").toPath(), testGameContent.getBytes());
+        Files.write(getGameSaver().getGameFile("invalid_file").toPath(), invalidGameContent.getBytes());
     }
 
     @Test
     public void testSaveGame() throws IOException {
         getGameSaver().saveGame("new_game", getCorrectTestGame());
-        Path expectedFile = getGameSaver().getFilePath("test_game");
-        Path actualFile = getGameSaver().getFilePath("new_game");
+        Path expectedFile = getGameSaver().getGameFile("test_game").toPath();
+        Path actualFile = getGameSaver().getGameFile("new_game").toPath();
         assertEquals(-1, Files.mismatch(expectedFile, actualFile),
             "Not the same files");
     }
@@ -95,10 +95,8 @@ public class GameSaverTest {
 
     @AfterAll
     public void teardown() throws IOException {
-        getGameSaver().getFilePath("test_game").toFile().delete();
-        getGameSaver().getFilePath("new_game").toFile().delete();
-        getGameSaver().getFilePath("invalid_file").toFile().delete();
+        getGameSaver().getGameFile("test_game").delete();
+        getGameSaver().getGameFile("new_game").delete();
+        getGameSaver().getGameFile("invalid_file").delete();
     }
-
-
 }
