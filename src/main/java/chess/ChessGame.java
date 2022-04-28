@@ -66,10 +66,16 @@ public class ChessGame {
     }
 
     public void setTurn(char turn) {
+        if (!Piece.isValidColor(turn)) {
+            throw new IllegalArgumentException("Not a valid turn");
+        }
         this.turn = turn;
     }
 
     public void setNextTurn(char nextTurn) {
+        if (!Piece.isValidColor(nextTurn)) {
+            throw new IllegalArgumentException("Not a valid turn");
+        }
         this.nextTurn = nextTurn;
     }
 
@@ -78,31 +84,35 @@ public class ChessGame {
     }
 
     public void setLastMoveSquare(int[] lastMoveSquare) {
+        if (Piece.isIllegalSquare(lastMoveSquare)) {
+            throw new IllegalArgumentException("Not a valid sqaure");
+        }
         this.lastMoveSquare = lastMoveSquare;
     }
 
     // Checks for invalid input, and if move is legal calls executeMove
     public boolean tryMove(Piece piece, int[] move) {
-        if (piece == null || piece.getSquare() == null) throw new NullPointerException("Not a valid piece");
-        if (Piece.isIllegalSquare(move)) throw new IllegalArgumentException("Not a valid move");
-        if (piece.getColor() != turn) throw new IllegalArgumentException("Not that color's turn");
-        
+        if (piece == null || piece.getSquare() == null) {
+             throw new NullPointerException("Not a valid piece");
+        } else if (Piece.isIllegalSquare(move) || piece.getColor() != turn) {
+            throw new IllegalArgumentException("Not a valid move");
+        }
         moveWasCastling = false;
         List<List<Integer>> legalMoves = filterOutCheckMoves(piece, piece.findLegalMoves(board));
         List<Integer> moveToList = Arrays.asList(move[0], move[1]);
         
-        if (legalMoves.contains(moveToList)) {
-            if (checkForIllegalCastling(piece, move)) return false;
-            executeMove(piece, move);
-            return true;
+        if (!legalMoves.contains(moveToList)) {
+            throw new IllegalArgumentException("Not a valid move for that piece");
+        } else if (checkForIllegalCastling(piece, move)) {
+                throw new IllegalArgumentException("The king cannot castle");
         }
-        System.out.println("Brikken kan ikke flytte ditt, prøv et annet trekk!");
-        return false;
+        executeMove(piece, move);
+        return true;
     }
 
     // Executes the move by updating the board and turn. Also checking for check, checkmate and draw
     private void executeMove(Piece piece, int[] move) {
-        if (piece.getName() == "chess.Pawn" && (move[0] == 0 || move[0] == 7)) { 
+        if (piece instanceof Pawn && (move[0] == 0 || move[0] == 7)) { 
             int[] square = piece.getSquare();
             piece = new Queen(piece.getColor());
             piece.setSquare(square);
@@ -122,7 +132,6 @@ public class ChessGame {
         } else {
             check = false;
         }
-        System.out.println(boardClass.boardString());
     }
 
     // Updates turn
@@ -146,15 +155,15 @@ public class ChessGame {
 
     // Finds the king with the color turn
     public Piece getKingPiece(char turn) {
-        if (turn != 'w' && turn != 'b') {
+        if (!Piece.isValidColor(turn)) {
             throw new IllegalArgumentException("Not a valid color");
         } 
         return Arrays.stream(board)
             .flatMap(row -> Arrays.stream(row)
             .filter(p -> p != null)
-            .filter(p -> p.getName() == "chess.King" && p.getColor() == turn))
-            .findFirst().
-            orElse(null);
+            .filter(p -> p instanceof King && p.getColor() == turn))
+            .findFirst()
+            .orElse(null);
     }
             
     // Filter out illegal moves that leads to check
@@ -173,7 +182,7 @@ public class ChessGame {
         return notCheckMoves;
     }
 
-    // Checks for check
+     // Checks if the color turn is in check
     private boolean checkForCheck() {
         if (getKingPiece(turn) != null) {
             List<Integer> kingSquareList = Arrays.asList(getKingPiece(turn).getX(), getKingPiece(turn).getY());
@@ -205,7 +214,7 @@ public class ChessGame {
 
     // If move is castling, checks if caslting path is attacked or check is true
     private boolean checkForIllegalCastling(Piece piece, int[] move) {
-        if (piece.getName() == "chess.King" && Math.abs(piece.getY()-move[1]) == 2) {
+        if (piece instanceof King && Math.abs(piece.getY()-move[1]) == 2) {
             int pos1 = 1;
             int pos2 = 2;
             if (piece.getY() > move[1]) {
@@ -216,7 +225,6 @@ public class ChessGame {
             pathMoves.add(Arrays.asList(piece.getX(), piece.getY()+pos1));
             pathMoves.add(Arrays.asList(piece.getX(), piece.getY()+pos2));
             if (filterOutCheckMoves(piece, pathMoves).size() < 2 || check){
-                System.out.println("Kongen kan ikke rokere, prøv et annet trekk!");
                 return true;
             }
             moveWasCastling = true;

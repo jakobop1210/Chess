@@ -17,7 +17,7 @@ public class Board {
         return board;
     }
 
-    // Creating a nested array board that matches the stringBoard input
+    // Creating a nested array board that matches the string board input
     public void setBoard(String stringBoard) {
         if (!legalBoardString(stringBoard)) {
             throw new IllegalArgumentException("Not a valid board string");

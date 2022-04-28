@@ -16,7 +16,24 @@ public class ChessGameTest {
 	public void setUp() {
         game = new ChessGame();
     }
-    
+
+    @Test
+    @DisplayName("Test setting illegal values")
+    public void testSetValues() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            game.setTurn('s');
+        }, "Not a valid color");
+        assertThrows(IllegalArgumentException.class, () -> {
+            game.setNextTurn('0');
+        }, "Not a valid color");
+        assertThrows(IllegalArgumentException.class, () -> {
+            game.setLastMoveSquare(new int[]{1, 2, 3});
+        }, "A sqaure can only have 2 numbers");
+        assertThrows(IllegalArgumentException.class, () -> {
+            game.setLastMoveSquare(new int[]{-1, 100});
+        }, "The numbers need to be between 0 and 7");
+    }
+
     @Test
     @DisplayName("Test for illegal inputs, and legal/illegal moves")
     public void testTryMove() {
@@ -42,7 +59,10 @@ public class ChessGameTest {
         blackHorse.setSquare(new int[]{0, 1});
         game.setTurn('b');
         assertEquals(true, game.tryMove(blackHorse, new int[]{2, 0}), "Should be legal");
-        assertEquals(false, game.tryMove(whitePawn, new int[]{4, 5}), "Not a legal move");
+        assertThrows(IllegalArgumentException.class, () -> {
+            game.tryMove(whitePawn, new int[]{4, 5});
+        }, "Not a legal move for that piece");
+
     }
 
     @Test
@@ -68,10 +88,12 @@ public class ChessGameTest {
         whiteKing.setSquare(new int[]{7, 7});
         whiteBishop.setSquare(new int[]{7, 5});
         whiteKing.setHasMoved(true);
-        assertEquals(false, game.tryMove(whiteKing, new int[]{6, 6}), 
-        "Cannot move into check from the black rook");
-        assertEquals(false, game.tryMove(whiteBishop, new int[]{6, 6}), 
-        "Moving the bishop will lead to check from the black queen");
+        assertThrows(IllegalArgumentException.class, () -> {
+            game.tryMove(whiteKing, new int[]{6, 6});
+        }, "Cannot move into check from the black rook");
+        assertThrows(IllegalArgumentException.class, () -> {
+            game.tryMove(whiteBishop, new int[]{6, 6});
+        }, "Moving the bishop will lead to check from the black queen");
         assertEquals(true, game.tryMove(whiteKing, new int[]{6, 7}), 
         "The only legal move that will not lead to check");
     }
@@ -195,12 +217,14 @@ public class ChessGameTest {
 
         game.setBoard("0000q00000000000000000000000000000000000000000000000000R0000K00R");
         game.setTurn('w');
-        assertEquals(false, game.tryMove(whiteKing, new int[]{7, 2}), 
-        "white king is in check by black queen");
+        assertThrows(IllegalArgumentException.class, () -> {
+            game.tryMove(whiteKing, new int[]{7, 2});
+        }, "Cannot castle because the king is in check by the black queen");
 
         game.setBoard("000r000000000000000000000000000000000000000000000000000R0000K00R");
-        assertEquals(false, game.tryMove(whiteKing, new int[]{7, 2}), 
-        "black rook is attacking the castling path");
+        assertThrows(IllegalArgumentException.class, () -> {
+            game.tryMove(whiteKing, new int[]{7, 2});
+        }, "black rook is attacking the castling path");
     }
 
     @Test

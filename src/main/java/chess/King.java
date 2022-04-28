@@ -13,6 +13,7 @@ public class King extends Piece {
         super.setBreakLoopWhenHttingPiece(false);
     }
 
+    // Checking if square in the board is empty
     private boolean isSquareEmpty(int[] square, Piece[][] board) {
         if (board[square[0]][square[1]] == null) {
             return true;
@@ -22,10 +23,11 @@ public class King extends Piece {
 
     // Checks if the castling move is legal (not checking for check and if the castling path is attacked)
     private List<List<Integer>> IfLegalAddCastling(Piece[][] board, List<List<Integer>> legalMoves, int[] direction, int rookPos) {
-        boolean spacesBetweenIsNotEmpty = Arrays.stream(direction).anyMatch(p -> !isSquareEmpty(new int[]{this.getX(), this.getY()+p}, board));
+        boolean spacesBetweenIsNotEmpty = Arrays.stream(direction)
+        .anyMatch(p -> !isSquareEmpty(new int[]{this.getX(), this.getY()+p}, board));
         Piece castleRook = board[this.getX()][this.getY()+rookPos];
         if (castleRook != null) {
-            if (!spacesBetweenIsNotEmpty && castleRook.getName() == "chess.Rook" && !castleRook.hasMoved()) {
+            if (!spacesBetweenIsNotEmpty && castleRook instanceof Rook && !castleRook.hasMoved()) {
                 legalMoves.add(Arrays.asList(this.getX(), this.getY()+direction[0]));
             }      
         }

@@ -64,13 +64,13 @@ public class ChessController {
     private void handleSave() {
         savedGameFeedbackPane.visibleProperty().set(true);
         try {
-            if (savedGamesCBox.getItems().contains(getFilename())) {
+            if (savedGamesCBox.getItems().contains(gameNameInput.getText())) {
                 savedGameFeedback.setText("There is already a game with that name");
-            } else if (getFilename().length() == 0) {
+            } else if (gameNameInput.getText().length() == 0) {
                 savedGameFeedback.setText("Need to give the game a name");
             } else {
-                gameSaver.saveGame(getFilename(), game);
-                savedGamesCBox.getItems().add(getFilename()); 
+                gameSaver.saveGame(gameNameInput.getText(), game);
+                savedGamesCBox.getItems().add(gameNameInput.getText()); 
                 savedGameFeedback.setText("Your game has been saved");
                 setChoiceBoxValue();
             }
@@ -78,6 +78,7 @@ public class ChessController {
             savedGameFeedback.setText("An error occured");    
         }
     }
+
 
     @FXML
     private void handleLoad() {
@@ -110,7 +111,6 @@ public class ChessController {
         }
     }
 
-    // Is called when white click resign
     @FXML
     private void whiteResign() {
         winningMethod.setText("by resignation");
@@ -118,7 +118,6 @@ public class ChessController {
         whenGameIsOver();
     }
 
-    // Is called when black click resign
     @FXML
     private void blackResign() {
         winningMethod.setText("by resignation");
@@ -170,6 +169,7 @@ public class ChessController {
         disableButtons();
     }
 
+    // Is called when game is over
     private void whenGameIsOver() {
         resultPane.visibleProperty().set(true);
         game.setGameOver(true);
@@ -219,7 +219,7 @@ public class ChessController {
         }
     }
 
-    // Creating the invivsible buttons which calls on clickedButton when clicked on
+    // Creating the invivsible buttons which calls clickedButton when clicked on
     private Button createSquareButton(int i, int j) {
         Button button = new Button();
         button.setOpacity(0);
@@ -244,15 +244,6 @@ public class ChessController {
         }
     }
 
-    // Setting the pane "square" back to original color
-    private void setPaneRightColor(int[] square) {
-        if (square[0]%2 == 0 && square[1]%2 == 1 || square[0]%2 == 1 && square[1]%2 == 0) {
-            paneArr[square[0]][square[1]].setStyle("-fx-background-color:green");
-        } else {
-            paneArr[square[0]][square[1]].setStyle("-fx-background-color:#FFFDE7");
-        }
-    }
-
     // Executes move if it's legal, if so then updates the images with setImageUrl and calls checkResult()
     private void doMove(int[] lastClickedSquare, int i, int j) {
         Piece lastPieceClickedOn = game.getBoard()[lastClickedSquare[0]][lastClickedSquare[1]];
@@ -272,10 +263,20 @@ public class ChessController {
                     if (game.isGameOver()) checkResult();
                 } 
             } catch (IllegalArgumentException e) {
-                System.out.println("Not your turn");
+                System.out.println("Not a valid move");
             }
         }
     }
+
+    // Setting the pane "square" back to original color
+    private void setPaneRightColor(int[] square) {
+        if (square[0]%2 == 0 && square[1]%2 == 1 || square[0]%2 == 1 && square[1]%2 == 0) {
+            paneArr[square[0]][square[1]].setStyle("-fx-background-color:green");
+        } else {
+            paneArr[square[0]][square[1]].setStyle("-fx-background-color:#FFFDE7");
+        }
+    }
+
 
     // Setting the cordinate i, j image to match the piece
     private void setImageUrl(Piece piece, int i, int j) {
@@ -304,25 +305,24 @@ public class ChessController {
         }
     }  
 
+    // Adding all existing saved files to the choiceBox when game is opened
     private void addSavedFilesToChoiceBox() {
-        File path = gameSaver.getFileFolderPath().toFile();
-        File[] fileArray = path.listFiles();
-        if (fileArray != null) {
-            for (File file : fileArray) {  
-                savedGamesCBox.getItems().add(file.getName().substring(0, file.getName().length()-4));
-            }
+        try {
+            File path = gameSaver.getFileFolderPath().toFile();
+            File[] fileArray = path.listFiles();
+            if (fileArray != null) {
+                for (File file : fileArray) {  
+                    savedGamesCBox.getItems().add(file.getName().substring(0, file.getName().length()-4));
+                }
             setChoiceBoxValue();
+            }
+        } catch (Exception e) {
+            savedGameFeedbackPane.visibleProperty().set(true);
+            savedGameFeedback.setText("Could not establish a path connection for saving and loading games");
         }
     }
 
-    private String getFilename() {
-        String filename = this.gameNameInput.getText();
-        if (filename.isEmpty()) {
-            System.out.println("The game must have a name");
-        }
-        return filename;
-    }
-
+    // Set choiceBox value when "Saved gamed" is clicked, a game is saved or deleted
     private void setChoiceBoxValue() {
         if (savedGamesCBox.getItems().isEmpty()) {
             savedGamesCBox.setValue("No games saved yet");

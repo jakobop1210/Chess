@@ -63,7 +63,7 @@ public class GameSaverTest {
         getGameSaver().saveGame("new_game", getCorrectTestGame());
         Path expectedFile = getGameSaver().getFilePath("test_game");
         Path actualFile = getGameSaver().getFilePath("new_game");
-        assertEquals(Files.mismatch(expectedFile, actualFile), -1,
+        assertEquals(-1, Files.mismatch(expectedFile, actualFile),
             "Not the same files");
     }
 

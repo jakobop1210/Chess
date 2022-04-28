@@ -13,10 +13,17 @@ public abstract class Piece {
     private int y = -1;
 
     public Piece(char color) {
-        if (color != 'w' && color != 'b') {
-            throw new IllegalArgumentException("Ikke gyldig farge!");
+        if (!isValidColor(color)) {
+            throw new IllegalArgumentException("Ikke gyldig farge");
         }
         this.color = color;
+    }
+
+    public static boolean isValidColor(char color) {
+        if (color != 'w' && color != 'b') {
+            return false;
+        }
+        return true;
     }
 
     public String getName() {
@@ -73,7 +80,6 @@ public abstract class Piece {
         for (int[] square : moves) {
             if (isInsideBoard(square)) {
                 Piece moveToPiece = board[this.getX()+square[0]][this.getY()+square[1]];
-
                 if (moveToPiece == null) {
                     legalMoves.add(Arrays.asList(this.getX()+square[0], this.getY()+square[1]));
                 } else if (this.getColor() == moveToPiece.getColor()) {
@@ -97,6 +103,9 @@ public abstract class Piece {
     }
 
     public static boolean isIllegalSquare(int[] square) {
-        return Arrays.stream(square).anyMatch(p -> (p < 0 || p > 7));
+        if (Arrays.stream(square).anyMatch(p -> (p < 0 || p > 7)) || square.length != 2) {
+            return true;
+        }
+        return false;
     }
 }

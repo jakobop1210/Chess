@@ -2,7 +2,7 @@
 Jeg skal lage sjakk, der målet er å etterligne et ekte sjakkspill så mye som mulig.
 Når man åpner appen kan man spille mot en venn, og man starter spillet ved å trykke på brikken man lyst til å flytte først. 
 Hver gang man trykker på en brikke vil alle lovlige trekk bli synlige ved at rutene får en ny farge. Målet med spillet
-er å vinne ved å sette motstanderen i sjakkmatt, eller at motstanderen gir opp. Jeg har bestemt meg for å ikke imnplementere spesialregler i spillet som rokade, passant, patt, trekkgjentakelser og maks trekk uten at brikke blir tatt. Jeg skal heller ikke impelmentere noen tidsbegrensning i spillet. Alt dette er for å unnga og gjøre prosjektet for omfattende, da det allerede er ganske krevende. 
+er å vinne ved å sette motstanderen i sjakkmatt, eller at motstanderen gir opp. Jeg har bestemt meg for å ikke implementere alle spesialregler i spillet som en passant, trekkgjentakelser og maks trekk uten at brikke blir tatt. Jeg skal heller ikke impelmentere noen tidsbegrensning i spillet. Alt dette er for å unnga og gjøre prosjektet for omfattende, da det allerede er ganske krevende. 
 
 # Grunnklasser
 - Piece.java: Piece skal være klassen som oppretter brikkene i spillet. Klassen skal inneholde navn og farge på brikken. Jeg skal
