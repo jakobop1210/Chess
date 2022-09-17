@@ -48,8 +48,7 @@ public class GameSaver implements IGameSaver {
         return getFileFolderPath().resolve(filename + ".txt").toFile();
     }   
 
-    @Override
-    public Path getFileFolderPath() {
+    public static Path getFileFolderPath() {
         return Path.of(System.getProperty("user.home"), "tdt4100files", "Saved games");
     }   
 }

@@ -100,12 +100,12 @@ public class ChessController {
 
     @FXML
     private void deleteGame() {
-        try {
-            File deleteFile = gameSaver.getFilePath(savedGamesCBox.getValue()).toFile();
+        if (savedGamesCBox.getItems().contains(savedGamesCBox.getValue())) {
+            File deleteFile = gameSaver.getGameFile(savedGamesCBox.getValue());
             deleteFile.delete();
             savedGamesCBox.getItems().remove(savedGamesCBox.getValue());
             setChoiceBoxValue();
-        } catch (IOException e) {
+        } else {
             savedGameFeedbackPane.visibleProperty().set(true);
             savedGameFeedback.setText("Error occured - File not found");
         }
@@ -308,7 +308,7 @@ public class ChessController {
     // Adding all existing saved files to the choiceBox when game is opened
     private void addSavedFilesToChoiceBox() {
         try {
-            File path = gameSaver.getFileFolderPath().toFile();
+            File path = GameSaver.getFileFolderPath().toFile();
             File[] fileArray = path.listFiles();
             if (fileArray != null) {
                 for (File file : fileArray) {  
