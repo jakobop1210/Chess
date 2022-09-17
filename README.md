@@ -1,1 +1,1 @@
-Complete chess app made in Java and JavaFX, not possible to play with computer.
+Complete chess game to play with a friend, made with Java and JavaFX.
